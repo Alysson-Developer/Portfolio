@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+portfolio.db
+.env
+.env.*
+.idea/
+.vscode/
+Portfolio/wwwroot/uploads/**
+!Portfolio/wwwroot/uploads/**/.gitkeep
