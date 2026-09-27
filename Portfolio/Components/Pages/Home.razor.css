@@ -1,0 +1,40 @@
+.portfolio-page {
+    position: relative;
+
+    min-height: 100vh;
+}
+
+.portfolio-main {
+    position: relative;
+
+    width: 100%;
+}
+
+.placeholder-section {
+    display: flex;
+    align-items: center;
+
+    min-height: 100svh;
+}
+
+.placeholder-section h2 {
+    font-size: clamp(
+            2rem,
+            4vw,
+            4rem
+    );
+
+    line-height: 1;
+}
+
+.placeholder-section p {
+    margin-top: 1rem;
+
+    color: var(--color-text-muted);
+
+    font-size: clamp(
+            1rem,
+            1.3vw,
+            1.25rem
+    );
+}

@@ -1,0 +1,51 @@
+.site-shell {
+    position: relative;
+    min-height: 100vh;
+
+    background:
+            radial-gradient(
+                    circle at 50% 110%,
+                    var(--glow-primary-strong),
+                    transparent 42%
+            ),
+            linear-gradient(
+                    180deg,
+                    #0e0320 0%,
+                    #090315 100%
+            );
+}
+
+.portfolio-main {
+    position: relative;
+}
+
+.portfolio-section {
+    position: relative;
+
+    min-height: 100svh;
+
+    padding-block: var(--section-padding-block);
+    padding-inline: var(--page-padding-inline);
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+.portfolio-container {
+    width: min(100%, var(--content-max-width));
+
+    margin-inline: auto;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll-container {
+    scroll-snap-type: y mandatory;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --navbar-height: 4rem;
+    }
+}

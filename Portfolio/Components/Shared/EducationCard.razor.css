@@ -1,0 +1,117 @@
+.education-card {
+    min-width: 0;
+
+    min-height: 16.5rem;
+
+    padding:
+            0.8rem
+            1rem
+            1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: var(--color-surface);
+
+    overflow: hidden;
+
+    transition:
+            transform var(--transition-normal),
+            background var(--transition-normal);
+}
+
+.education-card:hover {
+    transform: translateY(-3px);
+
+    background: var(--color-surface-hover);
+}
+
+/* Imagem */
+
+.education-card-image-link {
+    display: block;
+
+    flex-shrink: 0;
+}
+
+.education-card-image {
+    width: 4rem;
+    height: 4rem;
+
+    margin-top: 0.05rem;
+
+    overflow: hidden;
+
+    border-radius: 0.8rem;
+}
+
+.education-card-image img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+/* Instituição */
+
+.education-card-institution {
+    margin-top: 0.3rem;
+
+    color: var(--color-text);
+
+    font-size: 0.8rem;
+
+    font-weight: 700;
+
+    text-align: center;
+}
+
+/* Curso */
+
+.education-card-title {
+    margin-top: 1.9rem;
+
+    color: var(--color-text);
+
+    font-size: clamp(0.9rem, 1vw, 1.1rem);
+
+    font-weight: 400;
+
+    font-style: italic;
+
+    line-height: 1.25;
+
+    text-align: center;
+}
+
+/* Período */
+
+.education-card-period {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.4rem;
+
+    margin-top: auto;
+    padding-top: 1.25rem;
+
+    color: var(--color-text);
+
+    font-size: 0.7rem;
+
+    font-weight: 700;
+}
+
+.education-card-period-dot {
+    width: 0.25rem;
+    height: 0.25rem;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background:
+            var(--color-primary-light);
+}

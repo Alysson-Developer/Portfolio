@@ -1,0 +1,68 @@
+@using Portfolio.Models
+
+<article class="project-card">
+
+    @if (!string.IsNullOrWhiteSpace(Project.Url))
+    {
+        <a
+            class="project-card-image-link"
+            href="@Project.Url"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Abrir projeto @Project.Title"
+            title="@Project.Title">
+
+                <div class="project-card-image" title="@Project.Title">
+                <img src="@Project.Image" alt="@Project.Title" />
+            </div>
+
+        </a>
+    }
+    else
+    {
+            <div class="project-card-image" title="@Project.Title">
+                <img src="@Project.Image" alt="@Project.Title" />
+        </div>
+    }
+
+    <div class="project-card-content">
+
+        <h3 class="project-card-title">
+            @Project.Title
+        </h3>
+
+        @if (!string.IsNullOrWhiteSpace(Project.Organization))
+        {
+            <p class="project-card-organization">
+                @Project.Organization
+            </p>
+        }
+
+        <p class="project-card-description">
+            @Project.Description
+        </p>
+
+        @if (Project.ProjectTechnologies.Count > 0)
+        {
+            <div class="project-card-technologies">
+
+                    @foreach (var relation in Project.ProjectTechnologies)
+                    {
+                        <span class="project-card-technology" title="@relation.Technology.Name" aria-label="@relation.Technology.Name">
+                            <img src="@relation.Technology.Icon" alt="@relation.Technology.Name" />
+                        </span>
+                }
+
+            </div>
+        }
+
+    </div>
+
+</article>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public Project Project { get; set; } = default!;
+
+}

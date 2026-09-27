@@ -1,0 +1,65 @@
+@using Portfolio.Models
+
+<article class="education-card">
+
+    @if (!string.IsNullOrWhiteSpace(Education.Url))
+    {
+        <a
+            class="education-card-image-link"
+            href="@Education.Url"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Abrir @Education.Title"
+            title="@Education.Title">
+
+            <div class="education-card-image" title="@Education.Title">
+
+                <img
+                    src="@Education.Image"
+                    alt="@Education.Title" />
+
+            </div>
+
+        </a>
+    }
+    else
+    {
+        <div class="education-card-image" title="@Education.Title">
+
+            <img
+                src="@Education.Image"
+                alt="@Education.Title" />
+
+        </div>
+    }
+
+    <p class="education-card-institution">
+        @Education.Institution
+    </p>
+
+    <h3 class="education-card-title">
+        @Education.Title
+    </h3>
+
+    <div class="education-card-period">
+
+        <span>
+            @ExperienceDuration.FormatMonthYear(Education.StartDate)
+        </span>
+
+        <span class="education-card-period-dot"></span>
+
+        <span>
+            @ExperienceDuration.FormatMonthYear(Education.EndDate)
+        </span>
+
+    </div>
+
+</article>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public EducationItem Education { get; set; } = default!;
+
+}

@@ -1,0 +1,42 @@
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section id="inicio" class="hero-section">
+
+    <div class="hero-background" aria-hidden="true"></div>
+
+    <div class="hero-container portfolio-container">
+
+        <div class="hero-content">
+
+            <h1 class="hero-title">
+                @NameFirst<br />
+                @NameMiddle<br />
+                @NameLast
+            </h1>
+
+            <p class="hero-subtitle">
+                @TitleFirst<br />
+                @TitleSecond
+            </p>
+
+            <a href="@CvUrl" class="hero-cv-button">
+                Baixar CV
+            </a>
+
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+            <img
+                src="/images/Watermark.png"
+                alt="" />
+        </div>
+
+    </div>
+
+
+</section>
+@code {
+ private string NameFirst="Alysson", NameMiddle="Serafim", NameLast="Brito", TitleFirst="Desenvolvedor de Jogos", TitleSecond="e Softwares", CvUrl="#projetos";
+ private void SetTitle(string value){var parts=value.Split(" e ",2,StringSplitOptions.None);if(parts.Length==2){TitleFirst=parts[0];TitleSecond="e "+parts[1];}else{var lines=value.Split('\n',2,StringSplitOptions.None);TitleFirst=lines[0];TitleSecond=lines.Length>1?lines[1]:string.Empty;}}
+ protected override async Task OnInitializedAsync(){var settings=await Content.GetSettingsAsync(); if(settings is null)return; var parts=settings.Name.Split(' ',StringSplitOptions.RemoveEmptyEntries); if(parts.Length>0)NameFirst=parts[0]; if(parts.Length>1)NameMiddle=parts[1]; if(parts.Length>2)NameLast=string.Join(' ',parts.Skip(2)); SetTitle(settings.ProfessionalTitle); CvUrl=string.IsNullOrWhiteSpace(settings.CvUrl)?"#projetos":settings.CvUrl; }
+}

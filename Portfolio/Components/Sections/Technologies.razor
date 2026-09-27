@@ -1,0 +1,105 @@
+@using Portfolio.Models
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section
+    id="tecnologias"
+    class="technologies-section portfolio-section">
+
+    <div class="technologies-container portfolio-container">
+
+        <header class="technologies-header">
+
+            <h2 class="technologies-title">
+                Tecnologias
+            </h2>
+
+            <p class="technologies-description">
+                Linguagens, frameworks e ferramentas que utilizo
+                no meu dia-a-dia.
+            </p>
+
+        </header>
+
+        <div class="technologies-grid">
+
+            
+
+            <section class="technology-group">
+
+                <h3 class="technology-group-title">
+                    Front-End
+                </h3>
+
+                <div class="technology-panel">
+
+                    @foreach (var technology in TechnologyItems.Where(x => x.Category == "Front-End"))
+                    {
+                        <TechnologyCard Technology="technology" />
+                    }
+
+                </div>
+
+            </section>
+
+            <section class="technology-group">
+
+                <h3 class="technology-group-title">
+                    Backend e Banco de Dados
+                </h3>
+
+                <div class="technology-panel">
+
+                    @foreach (var technology in TechnologyItems.Where(x => x.Category == "Backend e Banco de Dados"))
+                    {
+                        <TechnologyCard Technology="technology" />
+                    }
+
+                </div>
+
+            </section>
+
+            <section class="technology-group">
+
+                <h3 class="technology-group-title">
+                    DevOps e Desenvolvimento
+                </h3>
+
+                <div class="technology-panel">
+
+                    @foreach (var technology in TechnologyItems.Where(x => x.Category == "DevOps e Desenvolvimento"))
+                    {
+                        <TechnologyCard Technology="technology" />
+                    }
+
+                </div>
+
+            </section>
+            
+            <section class="technology-group">
+
+                <h3 class="technology-group-title">
+                    Design
+                </h3>
+
+                <div class="technology-panel">
+
+                    @foreach (var technology in TechnologyItems.Where(x => x.Category == "Design"))
+                    {
+                        <TechnologyCard Technology="technology" />
+                    }
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</section>
+
+@code {
+
+    private List<Technology> TechnologyItems = [];
+    protected override async Task OnInitializedAsync() => TechnologyItems = await Content.GetTechnologiesAsync();
+}

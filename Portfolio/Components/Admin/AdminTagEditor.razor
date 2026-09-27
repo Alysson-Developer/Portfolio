@@ -1,0 +1,8 @@
+<div class="admin-tag-editor"><div class="admin-tag-add"><input @bind="draft" @bind:event="oninput" placeholder="Digite e adicione uma tecnologia"/><button type="button" class="secondary-button" @onclick="Add">Adicionar</button></div><div class="technology-chips">@foreach(var value in Values){<span class="technology-chip">@value<button type="button" @onclick="()=>Remove(value)" aria-label="Remover @value">×</button></span>}</div></div>
+@code {
+    [Parameter] public List<string> Values { get; set; } = [];
+    [Parameter] public EventCallback<List<string>> ValuesChanged { get; set; }
+    private string draft="";
+    private async Task Add(){var item=draft.Trim();if(item.Length==0||Values.Contains(item,StringComparer.OrdinalIgnoreCase))return;var updated=Values.Append(item).ToList();draft="";await ValuesChanged.InvokeAsync(updated);}
+    private Task Remove(string item)=>ValuesChanged.InvokeAsync(Values.Where(v=>v!=item).ToList());
+}

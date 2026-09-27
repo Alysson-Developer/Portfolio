@@ -1,0 +1,228 @@
+@page "/admin/education"
+@layout AdminLayout
+@using Portfolio.Components.Admin.FormModels
+@using Portfolio.Services
+@inject IPortfolioContentService Content
+@inject ILogger<AdminEducation> Logger
+@inject IJSRuntime JS
+<AdminPageHeader Title="Educação" Description="Gerencie formações acadêmicas, cursos e certificados.">
+    <button class="admin-primary-button" type="button" @onclick="NewItem">＋ Nova formação</button>
+</AdminPageHeader>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <AdminAlert Message="@message" Kind="@messageKind" OnDismiss="DismissMessage"/>
+}
+@if (showForm)
+{
+    <section class="admin-panel editor-panel">
+        <div class="panel-heading">
+            <div><h2>@(form.Id == 0 ? "Nova formação" : "Editar formação")</h2>
+                <p>Informe os dados da formação ou certificado.</p></div>
+            <button class="icon-button" type="button" @onclick="CancelForm" aria-label="Fechar">×</button>
+        </div>
+        <EditForm Model="form" FormName="education-form" OnValidSubmit="Save">
+            <DataAnnotationsValidator/>
+            <ValidationSummary class="validation-summary"/>
+            <div class="form-grid">
+                <div class="field"><label>Instituição <span>*</span></label>
+                    <InputText @bind-Value="form.Institution" placeholder="Nome da instituição"/>
+                    <ValidationMessage For="@(() => form.Institution)"/>
+                </div>
+                <div class="field"><label>Título <span>*</span></label>
+                    <InputText @bind-Value="form.Title" placeholder="Nome da formação ou certificado"/>
+                    <ValidationMessage For="@(() => form.Title)"/>
+                </div>
+                <div class="field field-wide"><label>Descrição</label>
+                    <InputTextArea @bind-Value="form.Description" rows="3" placeholder="Descrição opcional"/>
+                </div>
+                <div class="field"><label>Data inicial</label>
+                    <InputDate TValue="DateOnly?" @bind-Value="form.StartDate"/>
+                </div>
+                <div class="field"><label>Data final</label>
+                    <InputDate TValue="DateOnly?" @bind-Value="form.EndDate"/>
+                </div>
+                <div class="field"><label>URL</label>
+                    <InputText @bind-Value="form.Url" placeholder="https://"/>
+                    <ValidationMessage For="@(() => form.Url)"/>
+                </div>
+                <div class="field"><label>Ordem</label>
+                    <InputNumber @bind-Value="form.Order"/>
+                </div>
+                <div class="field field-wide"><label>Imagem</label>
+                    <AdminImageUpload Kind="education" @bind-Value="form.Image"/>
+                </div>
+                <div class="field field-wide"><label class="checkbox-field">
+                        <InputCheckbox @bind-Value="form.IsAcademic"/>
+                        <span>Formação acadêmica</span></label></div>
+            </div>
+            <div class="form-actions">
+                <button class="admin-primary-button"
+                        type="submit">@(form.Id == 0 ? "Criar formação" : "Salvar alterações")</button>
+                <button class="secondary-button" type="button" @onclick="CancelForm">Cancelar</button>
+            </div>
+        </EditForm>
+    </section>
+}
+<section class="admin-panel list-panel">
+    <div class="panel-heading">
+        <div><h2>Formações cadastradas</h2>
+            <p>@items.Count @(items.Count == 1 ? "registro" : "registros")</p></div>
+    </div>
+    @if (items.Count == 0)
+    {
+        <div class="empty-state"><span>▤</span>
+            <h3>Nenhuma formação cadastrada</h3>
+            <p>Adicione sua formação acadêmica ou cursos e certificados.</p>
+            <button class="secondary-button" @onclick="NewItem">Adicionar primeira formação</button>
+        </div>
+    }
+    else
+    {
+        <div class="table-scroll">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Formação</th>
+                    <th>Período</th>
+                    <th>Tipo</th>
+                    <th>Ordem</th>
+                    <th class="actions-column">Ações</th>
+                </tr>
+                </thead>
+                <tbody>@foreach (var item in items)
+                {
+                    <tr>
+                        <td>
+                            <div class="record-with-image">
+                                <div class="record-thumbnail">@if (!string.IsNullOrWhiteSpace(item.Image))
+                                    {
+                                        <img src="@item.Image" alt=""/>
+                                    }
+                                    else
+                                    {
+                                        <span>▤</span>
+                                    }
+                                </div>
+                                <div><strong>@item.Title</strong><small>@item.Institution</small></div>
+                            </div>
+                        </td>
+                        <td>@ExperienceDuration.FormatRange(item.StartDate, item.EndDate)</td>
+                        <td><span class="status-pill">@(item.IsAcademic ? "Acadêmica" : "Curso / certificado")</span>
+                        </td>
+                        <td>@item.Order</td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="text-action" @onclick="()=>Edit(item)">Editar</button>
+                                <button class="text-action danger-action" @onclick="()=>Delete(item)">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code{
+    private List<EducationItem> items = [];
+    private EducationForm form = new();
+    private EducationItem? editTarget;
+    private bool showForm;
+    private string message = "", messageKind = "success";
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task<bool> Load()
+    {
+        try
+        {
+            items = await Content.GetEducationAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load Admin education list");
+            SetMessage("Não foi possível carregar as formações. Tente novamente.", "error");
+            return false;
+        }
+    }
+
+    private void NewItem()
+    {
+        form = new();
+        editTarget = null;
+        showForm = true;
+        ClearMessage();
+    }
+
+    private void Edit(EducationItem item)
+    {
+        editTarget = item;
+        form = new() { Id = item.Id, Institution = item.Institution, Title = item.Title, Description = item.Description, StartDate = item.StartDate, EndDate = item.EndDate, Url = item.Url, Image = item.Image, IsAcademic = item.IsAcademic, Order = item.Order };
+        showForm = true;
+        ClearMessage();
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            var target = editTarget ?? new EducationItem();
+            target.Institution = form.Institution.Trim();
+            target.Title = form.Title.Trim();
+            target.Description = form.Description.Trim();
+            target.StartDate = form.StartDate;
+            target.EndDate = form.EndDate;
+            target.Url = form.Url?.Trim();
+            target.Image = form.Image;
+            target.IsAcademic = form.IsAcademic;
+            target.Order = form.Order;
+            await Content.SaveEducationAsync(target);
+            showForm = false;
+            if (!await Load()) return;
+            SetMessage(form.Id == 0 ? "Formação criada com sucesso." : "Formação atualizada com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save Admin education item");
+            SetMessage("Não foi possível salvar a formação. Tente novamente.", "error");
+        }
+    }
+
+    private async Task Delete(EducationItem item)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"Excluir ‘{item.Title}’? Esta ação não pode ser desfeita.")) return;
+        try
+        {
+            await Content.DeleteEducationAsync(item.Id);
+            if (!await Load()) return;
+            SetMessage("Formação excluída com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to delete Admin education item {EducationId}", item.Id);
+            SetMessage("Não foi possível excluir a formação. Tente novamente.", "error");
+        }
+    }
+
+    private void CancelForm()
+    {
+        showForm = false;
+        editTarget = null;
+    }
+
+    private void SetMessage(string text, string kind = "success")
+    {
+        message = text;
+        messageKind = kind;
+    }
+
+    private void ClearMessage() => message = "";
+
+    private Task DismissMessage()
+    {
+        message = "";
+        return Task.CompletedTask;
+    }
+
+}

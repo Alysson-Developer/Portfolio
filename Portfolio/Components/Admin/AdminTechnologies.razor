@@ -1,0 +1,30 @@
+@page "/admin/technologies"
+@layout AdminLayout
+@using Portfolio.Components.Admin.FormModels
+@using Portfolio.Services
+@inject IPortfolioContentService Content
+@inject ILogger<AdminTechnologies> Logger
+@inject IJSRuntime JS
+<AdminPageHeader Title="Tecnologias" Description="Mantenha atualizadas as ferramentas e tecnologias do seu perfil."><button class="admin-primary-button" type="button" @onclick="NewItem">＋ Nova tecnologia</button></AdminPageHeader>
+@if(!string.IsNullOrWhiteSpace(message)){<AdminAlert Message="@message" Kind="@messageKind" OnDismiss="DismissMessage"/>}
+@if(showForm){<section class="admin-panel editor-panel"><div class="panel-heading"><div><h2>@(form.Id==0?"Nova tecnologia":"Editar tecnologia")</h2><p>Escolha a categoria que organiza o item no portfólio.</p></div><button class="icon-button" type="button" @onclick="CancelForm" aria-label="Fechar">×</button></div>
+<EditForm Model="form" FormName="technology-form" OnValidSubmit="Save"><DataAnnotationsValidator/><ValidationSummary class="validation-summary"/><div class="form-grid">
+<div class="field"><label>Nome <span>*</span></label><InputText @bind-Value="form.Name" placeholder="Ex.: .NET"/><ValidationMessage For="@(()=>form.Name)"/></div>
+<div class="field"><label>Categoria <span>*</span></label><InputSelect @bind-Value="form.Category"><option value="">Selecione uma categoria</option>@foreach(var category in Categories){<option value="@category">@category</option>}</InputSelect><ValidationMessage For="@(()=>form.Category)"/></div>
+<div class="field"><label>URL</label><InputText @bind-Value="form.Url" placeholder="https://"/><ValidationMessage For="@(()=>form.Url)"/></div>
+<div class="field"><label>Ordem</label><InputNumber @bind-Value="form.Order"/></div>
+<div class="field field-wide"><label>Ícone</label><AdminImageUpload Kind="technologies" @bind-Value="form.Icon"/></div>
+</div><div class="form-actions"><button class="admin-primary-button" type="submit">@(form.Id==0?"Criar tecnologia":"Salvar alterações")</button><button class="secondary-button" type="button" @onclick="CancelForm">Cancelar</button></div></EditForm></section>}
+<section class="admin-panel list-panel"><div class="panel-heading"><div><h2>Tecnologias cadastradas</h2><p>@items.Count @(items.Count==1?"tecnologia":"tecnologias")</p></div></div>
+@if(items.Count==0){<div class="empty-state"><span>◇</span><h3>Nenhuma tecnologia cadastrada</h3><p>Adicione as tecnologias que fazem parte do seu perfil.</p><button class="secondary-button" @onclick="NewItem">Adicionar primeira tecnologia</button></div>}
+else{<div class="table-scroll"><table class="admin-table"><thead><tr><th>Tecnologia</th><th>Categoria</th><th>URL</th><th>Ordem</th><th class="actions-column">Ações</th></tr></thead><tbody>@foreach(var item in items){<tr><td><div class="record-with-image"><div class="technology-icon">@if(!string.IsNullOrWhiteSpace(item.Icon)){<img src="@item.Icon" alt=""/>}else{<span>◇</span>}</div><strong>@item.Name</strong></div></td><td><span class="status-pill">@item.Category</span></td><td class="url-cell">@(string.IsNullOrWhiteSpace(item.Url)?"—":item.Url)</td><td>@item.Order</td><td><div class="row-actions"><button class="text-action" @onclick="()=>Edit(item)">Editar</button><button class="text-action danger-action" @onclick="()=>Delete(item)">Excluir</button></div></td></tr>}</tbody></table></div>}
+</section>
+@code{
+private static readonly string[] Categories=["Front-End","Backend e Banco de Dados","DevOps e Desenvolvimento","Design"];
+private List<Technology> items=[];private TechnologyForm form=new();private Technology? editTarget;private bool showForm;private string message="",messageKind="success";
+protected override async Task OnInitializedAsync(){await Load();}private async Task<bool> Load(){try{items=await Content.GetTechnologiesAsync();return true;}catch(Exception ex){Logger.LogError(ex,"Admin Technology operation failed at /admin/technologies");SetMessage("Não foi possível carregar as tecnologias. Tente novamente.","error");return false;}}
+private void NewItem(){form=new();editTarget=null;showForm=true;ClearMessage();}private void Edit(Technology item){editTarget=item;form=new(){Id=item.Id,Name=item.Name,Icon=item.Icon,Category=item.Category,Url=item.Url,Order=item.Order};showForm=true;ClearMessage();}
+private async Task Save(){try{var target=editTarget??new Technology();target.Name=form.Name.Trim();target.Icon=form.Icon;target.Category=form.Category;target.Url=form.Url?.Trim();target.Order=form.Order;await Content.SaveTechnologyAsync(target);showForm=false;if(!await Load())return;SetMessage(form.Id==0?"Tecnologia criada com sucesso.":"Tecnologia atualizada com sucesso.");}catch(Exception ex){Logger.LogError(ex,"Admin Technology operation failed at /admin/technologies");SetMessage("Não foi possível salvar a tecnologia. Tente novamente.","error");}}
+private async Task Delete(Technology item){if(!await JS.InvokeAsync<bool>("confirm",$"Excluir ‘{item.Name}’? Esta ação não pode ser desfeita."))return;try{await Content.DeleteTechnologyAsync(item.Id);if(!await Load())return;SetMessage("Tecnologia excluída com sucesso.");}catch(Exception ex){Logger.LogError(ex,"Admin Technology operation failed at /admin/technologies");SetMessage("Não foi possível excluir a tecnologia. Tente novamente.","error");}}
+private void CancelForm(){showForm=false;editTarget=null;}private void SetMessage(string text,string kind="success"){message=text;messageKind=kind;}private void ClearMessage(){message="";messageKind="success";}private Task DismissMessage(){message="";return Task.CompletedTask;}
+}

@@ -1,0 +1,298 @@
+.contact-section {
+    position: relative;
+
+    width: 100%;
+    height: 100svh;
+    min-height: 100svh;
+
+    padding-block: 0;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: stretch;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    background:
+            radial-gradient(
+                    circle at 50% 50%,
+                    rgba(65, 25, 130, 0.08),
+                    transparent 45%
+            );
+}
+
+.contact-container {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* -------------------------------------------------
+   CONTEÚDO CENTRAL
+------------------------------------------------- */
+
+.contact-content {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: min(90%, 60rem);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+}
+
+.contact-title {
+    color: var(--color-text);
+
+    font-size: clamp(2.75rem, 4vw, 4rem);
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    letter-spacing: -0.04em;
+}
+
+.contact-description {
+    margin-top: 0.75rem;
+
+    color: var(--color-text);
+
+    font-size: clamp(1rem, 1.45vw, 1.35rem);
+
+    line-height: 1.4;
+}
+
+/* -------------------------------------------------
+   EMAIL
+------------------------------------------------- */
+
+.contact-email-wrapper {
+    display: flex;
+    align-items: center;
+
+    margin-top: 0.85rem;
+}
+
+.contact-email {
+    color: var(--color-text);
+
+    font-size: clamp(0.95rem, 1.15vw, 1.1rem);
+
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+
+    transition:
+            color var(--transition-normal);
+}
+
+.contact-email:hover {
+    color: var(--color-primary-light);
+}
+
+.contact-copy-button {
+    width: 2rem;
+    height: 2rem;
+
+    margin-left: 0.6rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-text);
+
+    cursor: pointer;
+
+    transition:
+            color var(--transition-normal),
+            transform var(--transition-normal);
+}
+
+.contact-copy-button:hover {
+    color: var(--color-primary-light);
+
+    transform: translateY(-2px);
+}
+
+.contact-copy-button svg {
+    width: 1.7rem;
+    height: 1.7rem;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+}
+
+/* -------------------------------------------------
+   REDES SOCIAIS CENTRAIS
+------------------------------------------------- */
+
+.contact-socials {
+    display: flex;
+    align-items: center;
+
+    gap: 0.8rem;
+
+    margin-top: 0.9rem;
+}
+
+.contact-social {
+    width: 2rem;
+    height: 2rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-text);
+
+    transition:
+            transform var(--transition-normal),
+            color var(--transition-normal);
+}
+
+.contact-social:hover {
+    color: var(--color-primary-light);
+
+    transform: translateY(-2px);
+}
+
+.contact-social svg {
+    width: 1.8rem;
+    height: 1.8rem;
+
+    fill: currentColor;
+}
+
+/* -------------------------------------------------
+   RODAPÉ
+------------------------------------------------- */
+
+.contact-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.contact-footer-line {
+    width: 100%;
+    height: 1px;
+
+    background: rgba(248, 247, 250, 0.35);
+}
+
+.contact-footer-content {
+    position: relative;
+
+    min-height: 5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-footer-content p {
+    color: var(--color-text);
+
+    font-size: 0.8rem;
+
+    text-align: center;
+}
+
+.contact-footer-socials {
+    position: absolute;
+
+    left: var(--page-padding-inline);
+
+    display: flex;
+    align-items: center;
+
+    gap: 0.7rem;
+}
+
+.contact-footer-social {
+    width: 2rem;
+    height: 2rem;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-text);
+
+    transition:
+            color var(--transition-normal),
+            transform var(--transition-normal);
+}
+
+.contact-footer-social:hover {
+    color: var(--color-primary-light);
+
+    transform: translateY(-2px);
+}
+
+.contact-footer-social svg {
+    width: 1.8rem;
+    height: 1.8rem;
+
+    fill: currentColor;
+}
+
+/* -------------------------------------------------
+   RESPONSIVO
+------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .contact-content {
+        width: calc(100% - 2rem);
+    }
+
+    .contact-description {
+        max-width: 24rem;
+    }
+
+    .contact-email-wrapper {
+        max-width: 100%;
+    }
+
+    .contact-email {
+        overflow-wrap: anywhere;
+    }
+
+    .contact-footer-content {
+        min-height: 6rem;
+
+        justify-content: flex-end;
+
+        padding-inline: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .contact-footer-socials {
+        left: 1rem;
+        top: 50%;
+
+        transform: translateY(-50%);
+    }
+
+    .contact-footer-content p {
+        max-width: 15rem;
+
+        font-size: 0.65rem;
+    }
+}

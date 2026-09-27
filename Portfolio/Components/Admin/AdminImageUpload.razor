@@ -1,0 +1,54 @@
+<div class="image-upload">
+    <div class="image-preview @(string.IsNullOrWhiteSpace(Value) ? "empty" : "")">
+        @if (!string.IsNullOrWhiteSpace(Preview)) { <img src="@Preview" alt="Prévia da imagem" /> }
+        else { <span>Prévia da imagem</span> }
+    </div>
+    <div class="image-upload-controls">
+        <label class="upload-picker">Selecionar imagem<input type="file" accept=".png,.jpg,.jpeg,.webp" @ref="fileInput" @onchange="FileSelected" /></label>
+        <span class="upload-filename">@(_selectedName ?? "PNG, JPG ou WebP · até 5 MB")</span>
+        @if (_selected) { <button type="button" class="upload-submit" disabled="@_busy" @onclick="Upload">@(_busy ? "Enviando…" : "Enviar imagem")</button> }
+        @if (!string.IsNullOrWhiteSpace(_error)) { <span class="upload-error" role="alert">@_error</span> }
+    </div>
+</div>
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter, EditorRequired] public string Kind { get; set; } = "projects";
+    private ElementReference fileInput;
+    private IJSObjectReference? _module;
+    private string? Preview, _selectedName, _error;
+    private bool _selected, _busy;
+    protected override void OnParametersSet() { if (!_selected) Preview = Value; }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/adminUpload.js"); }
+    private async Task FileSelected(ChangeEventArgs _)
+    {
+        try
+        {
+            var module = _module ?? throw new InvalidOperationException("O módulo de imagens ainda está carregando.");
+            _error = null;
+            _selected = true;
+            _selectedName = await module.InvokeAsync<string>("selectedFileName", fileInput);
+            Preview = await module.InvokeAsync<string>("preview", fileInput);
+            StateHasChanged();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "Failed to select image for Admin upload ({ImageKind})", Kind); _error = "Não foi possível abrir a prévia do arquivo."; }
+    }
+    private async Task Upload()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var module = _module ?? throw new InvalidOperationException("O módulo de imagens ainda está carregando.");
+            var url = await module.InvokeAsync<string>("uploadInput", fileInput, Kind);
+            Preview = url;
+            _selected = false;
+            _selectedName = null;
+            await ValueChanged.InvokeAsync(url);
+        }
+        catch (Exception ex) { Logger.LogError(ex, "Failed to upload Admin image ({ImageKind})", Kind); _error = "Não foi possível enviar a imagem. Confira o formato e o limite de 5 MB."; }
+        finally { _busy = false; }
+    }
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private ILogger<AdminImageUpload> Logger { get; set; } = default!;
+}

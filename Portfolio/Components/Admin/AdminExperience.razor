@@ -1,0 +1,124 @@
+@page "/admin/experience"
+@layout AdminLayout
+@using Portfolio.Components.Admin.FormModels
+@using Portfolio.Services
+@inject IPortfolioContentService Content
+@inject ILogger<AdminExperience> Logger
+@inject IJSRuntime JS
+
+<AdminPageHeader Title="Experiência profissional" Description="Organize sua trajetória e as tecnologias usadas em cada experiência.">
+    <button class="admin-primary-button" type="button" @onclick="NewExperience">＋ Nova experiência</button>
+</AdminPageHeader>
+@if (!string.IsNullOrWhiteSpace(message)) { <AdminAlert Message="@message" Kind="@messageKind" OnDismiss="DismissMessage" /> }
+@if (showForm)
+{
+    <section class="admin-panel editor-panel">
+        <div class="panel-heading"><div><h2>@(form.Id == 0 ? "Nova experiência" : "Editar experiência")</h2><p>As experiências são apresentadas na ordem definida abaixo.</p></div><button class="icon-button" type="button" @onclick="CancelForm" aria-label="Fechar">×</button></div>
+        <EditForm Model="form" FormName="experience-form" OnValidSubmit="Save">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+            <div class="form-grid">
+                <div class="field"><label>Empresa <span>*</span></label><InputText @bind-Value="form.Company" placeholder="Nome da empresa"/><ValidationMessage For="@(()=>form.Company)"/></div>
+                <div class="field"><label>Cargo <span>*</span></label><InputText @bind-Value="form.Position" placeholder="Cargo ou função"/><ValidationMessage For="@(()=>form.Position)"/></div>
+                <div class="field"><label>Data inicial <span>*</span></label><InputDate TValue="DateOnly?" @bind-Value="form.StartDate"/><ValidationMessage For="@(()=>form.StartDate)"/></div>
+                <div class="field"><label class="current-experience-toggle"><input type="checkbox" checked="@form.IsCurrent" @onchange="e => CurrentChanged(e.Value is true)"/> Presente <span>Experiência em andamento</span></label></div>
+                <div class="field"><label>Data final</label><InputDate TValue="DateOnly?" @bind-Value="form.EndDate" disabled="@form.IsCurrent"/><ValidationMessage For="@(()=>form.EndDate)"/></div>
+                <div class="field"><label>Duração calculada</label><output class="duration-output">@(string.IsNullOrEmpty(form.Duration) ? "—" : form.Duration)</output></div>
+                <div class="field"><label>Ordem</label><InputNumber @bind-Value="form.Order"/></div>
+                <div class="field field-wide"><label>Resumo</label><InputTextArea @bind-Value="form.Summary" rows="3" placeholder="Resumo da experiência"/></div>
+                <div class="field field-wide"><label>Detalhes</label><InputTextArea @bind-Value="form.Details" rows="5" placeholder="Responsabilidades, projetos e aprendizados"/></div>
+                <div class="field field-wide"><label>Tecnologias cadastradas</label><AdminTechnologyPicker Items="technologies" @bind-SelectedIds="form.TechnologyIds"/></div>
+            </div>
+            <div class="form-actions"><button class="admin-primary-button" type="submit">@(form.Id == 0 ? "Criar experiência" : "Salvar alterações")</button><button class="secondary-button" type="button" @onclick="CancelForm">Cancelar</button></div>
+        </EditForm>
+    </section>
+}
+<section class="admin-panel list-panel">
+    <div class="panel-heading"><div><h2>Experiências cadastradas</h2><p>@items.Count @(items.Count == 1 ? "registro" : "registros")</p></div></div>
+    @if (items.Count == 0)
+    {
+        <div class="empty-state"><span>◷</span><h3>Nenhuma experiência cadastrada</h3><p>Adicione sua trajetória profissional para exibi-la no portfólio.</p><button class="secondary-button" type="button" @onclick="NewExperience">Adicionar primeira experiência</button></div>
+    }
+    else
+    {
+        <div class="record-list">
+            @foreach (var item in items)
+            {
+                <article class="experience-record">
+                    <div class="record-order">@item.Order.ToString("00")</div>
+                    <div class="record-main">
+                        <div class="record-title-line"><div><h3>@item.Position</h3><p>@item.Company</p></div><div class="row-actions"><button class="text-action" type="button" @onclick="() => Edit(item)">Editar</button><button class="text-action danger-action" type="button" @onclick="() => Delete(item)">Excluir</button></div></div>
+                        <div class="record-meta"><span>@ExperienceDuration.FormatRange(item.StartDate, item.EndDate, item.IsCurrent)</span><span>@item.Duration</span>@if (item.IsCurrent) { <span class="status-pill">Em andamento</span> }</div>
+                        <div class="table-chips">@foreach (var relation in item.WorkExperienceTechnologies) { <span title="@relation.Technology.Name">@relation.Technology.Name</span> }</div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    private List<WorkExperience> items = [];
+    private List<Technology> technologies = [];
+    private ExperienceForm form = new();
+    private WorkExperience? editTarget;
+    private bool showForm;
+    private string message = "", messageKind = "success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+        try { technologies = await Content.GetTechnologiesAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "Failed to load technologies for experience selection"); SetMessage("Não foi possível carregar as tecnologias cadastradas.", "error"); }
+    }
+
+    private async Task<bool> Load()
+    {
+        try { items = await Content.GetExperiencesAsync(); return true; }
+        catch (Exception ex) { Logger.LogError(ex, "Admin Experience operation failed at /admin/experience"); SetMessage("Não foi possível carregar as experiências. Tente novamente.", "error"); return false; }
+    }
+
+    private void NewExperience() { editTarget = null; form = new(); showForm = true; ClearMessage(); }
+    private void Edit(WorkExperience item)
+    {
+        editTarget = item;
+        form = new() { Id = item.Id, Company = item.Company, Position = item.Position, StartDate = item.StartDate, EndDate = item.EndDate, IsCurrent = item.IsCurrent, Summary = item.Summary, Details = item.Details, Order = item.Order, TechnologyIds = item.WorkExperienceTechnologies.Select(x => x.TechnologyId).ToList() };
+        showForm = true; ClearMessage();
+    }
+
+    private void CurrentChanged(bool isCurrent)
+    {
+        form.IsCurrent = isCurrent;
+        if (isCurrent) form.EndDate = null;
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            var target = editTarget ?? new WorkExperience();
+            target.Company = form.Company.Trim(); target.Position = form.Position.Trim(); target.StartDate = form.StartDate;
+            target.IsCurrent = form.IsCurrent; target.EndDate = form.IsCurrent ? null : form.EndDate;
+            target.Summary = form.Summary.Trim(); target.Details = form.Details.Trim(); target.Order = form.Order;
+            target.WorkExperienceTechnologies.Clear();
+            foreach (var id in form.TechnologyIds) target.WorkExperienceTechnologies.Add(new WorkExperienceTechnology { TechnologyId = id });
+            await Content.SaveExperienceAsync(target);
+            showForm = false;
+            if (!await Load()) return;
+            SetMessage(form.Id == 0 ? "Experiência criada com sucesso." : "Experiência atualizada com sucesso.");
+        }
+        catch (Exception ex) { Logger.LogError(ex, "Admin Experience operation failed at /admin/experience"); SetMessage("Não foi possível salvar a experiência. Tente novamente.", "error"); }
+    }
+
+    private async Task Delete(WorkExperience item)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"Excluir a experiência em ‘{item.Company}’? Esta ação não pode ser desfeita.")) return;
+        try { await Content.DeleteExperienceAsync(item.Id); if (!await Load()) return; SetMessage("Experiência excluída com sucesso."); }
+        catch (Exception ex) { Logger.LogError(ex, "Admin Experience operation failed at /admin/experience"); SetMessage("Não foi possível excluir a experiência. Tente novamente.", "error"); }
+    }
+
+    private void CancelForm() { showForm = false; editTarget = null; }
+    private void SetMessage(string text, string kind = "success") { message = text; messageKind = kind; }
+    private void ClearMessage() { message = ""; messageKind = "success"; }
+    private Task DismissMessage() { message = ""; return Task.CompletedTask; }
+}

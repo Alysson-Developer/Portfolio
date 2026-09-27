@@ -1,0 +1,105 @@
+@using Portfolio.Models
+
+<article class="experience-timeline-item @(IsRight ? "is-right" : "is-left")">
+
+    <div class="experience-timeline-point" aria-hidden="true"></div>
+
+    <div class="experience-timeline-content">
+
+        <div class="experience-timeline-date">
+
+            <span class="experience-date">
+                @ExperienceDuration.FormatRange(Experience.StartDate, Experience.EndDate, Experience.IsCurrent)
+            </span>
+
+            @if (!string.IsNullOrWhiteSpace(Experience.Duration))
+            {
+                <span class="experience-duration">
+                    @Experience.Duration
+                </span>
+            }
+
+        </div>
+
+        <div class="experience-card">
+
+            <h3 class="experience-card-company">
+                @Experience.Company
+            </h3>
+
+            <p class="experience-card-position">
+                @Experience.Position
+            </p>
+
+            @if (Experience.WorkExperienceTechnologies.Count > 0)
+            {
+                <div class="experience-card-technologies">
+
+                    @foreach (var relation in Experience.WorkExperienceTechnologies)
+                    {
+                        <span class="experience-card-technology" title="@relation.Technology.Name" aria-label="@relation.Technology.Name">
+                            <img src="@relation.Technology.Icon" alt="@relation.Technology.Name" />
+                        </span>
+                    }
+
+                </div>
+            }
+
+            <button
+                class="experience-card-toggle"
+                type="button"
+                @onclick="ToggleDetails"
+                aria-expanded="@IsExpanded">
+
+                <span>
+                    @(IsExpanded ? "Ocultar detalhes" : "Mostrar detalhes")
+                </span>
+
+                <span
+                    class="experience-card-arrow @(IsExpanded ? "is-expanded" : "")"
+                    aria-hidden="true">
+                    ↓
+                </span>
+
+            </button>
+
+            <div class="experience-card-details @(IsExpanded ? "is-expanded" : "")">
+
+                @if (!string.IsNullOrWhiteSpace(Experience.Summary))
+                {
+                    <p>
+                        @Experience.Summary
+                    </p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Experience.Details))
+                {
+                    <p>
+                        @Experience.Details
+                    </p>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</article>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public WorkExperience Experience { get; set; } = default!;
+
+    [Parameter]
+    public bool IsRight { get; set; }
+
+    private bool IsExpanded { get; set; }
+
+    private void ToggleDetails()
+    {
+        IsExpanded = !IsExpanded;
+    }
+
+}

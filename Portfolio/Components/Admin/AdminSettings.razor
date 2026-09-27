@@ -1,0 +1,27 @@
+@page "/admin/settings"
+@layout AdminLayout
+@using Portfolio.Components.Admin.FormModels
+@using Portfolio.Services
+@inject IPortfolioContentService Content
+@inject ILogger<AdminSettings> Logger
+<AdminPageHeader Title="Configurações" Description="Atualize as informações principais e os links de contato do seu portfólio." />
+@if(!string.IsNullOrWhiteSpace(message)){<AdminAlert Message="@message" Kind="@messageKind" OnDismiss="DismissMessage"/>}
+<section class="admin-panel editor-panel settings-panel"><div class="panel-heading"><div><h2>Informações do site</h2><p>Esses dados são usados no Hero e na seção de contato.</p></div></div>
+@if(loading){<div class="loading-state">Carregando configurações…</div>}
+else{<EditForm Model="form" FormName="settings-form" OnValidSubmit="Save"><DataAnnotationsValidator/><ValidationSummary class="validation-summary"/><div class="form-grid">
+<div class="field"><label>Nome <span>*</span></label><InputText @bind-Value="form.Name"/><ValidationMessage For="@(()=>form.Name)"/></div>
+<div class="field"><label>Título profissional <span>*</span></label><InputText @bind-Value="form.ProfessionalTitle"/><ValidationMessage For="@(()=>form.ProfessionalTitle)"/></div>
+<div class="field"><label>E-mail <span>*</span></label><InputText type="email" @bind-Value="form.Email"/><ValidationMessage For="@(()=>form.Email)"/></div>
+<div class="field"><label>GitHub</label><InputText @bind-Value="form.GithubUrl" placeholder="https://github.com/"/></div>
+<div class="field"><label>LinkedIn</label><InputText @bind-Value="form.LinkedInUrl" placeholder="https://linkedin.com/in/"/></div>
+<div class="field"><label>CV</label><InputText @bind-Value="form.CvUrl" placeholder="URL do currículo"/></div>
+<div class="field field-wide"><label>Imagem de perfil</label><AdminImageUpload Kind="profile" @bind-Value="form.ProfileImage"/></div>
+</div><div class="form-actions"><button class="admin-primary-button" type="submit">Salvar configurações</button></div></EditForm>}
+</section>
+@code{
+private SettingsForm form=new();private SiteSettings? target;private bool loading=true;private string message="",messageKind="success";
+protected override async Task OnInitializedAsync(){try{await Reload();}catch(Exception ex){Logger.LogError(ex,"Failed to load Admin site settings");SetMessage("Não foi possível carregar as configurações. Tente novamente.","error");}finally{loading=false;}}
+private async Task Reload(){target=await Content.GetSettingsAsync();if(target is not null)form=new(){Id=target.Id,Name=target.Name,ProfessionalTitle=target.ProfessionalTitle,Email=target.Email,GithubUrl=target.GithubUrl,LinkedInUrl=target.LinkedInUrl,CvUrl=target.CvUrl,ProfileImage=target.ProfileImage};}
+private async Task Save(){try{var value=new SiteSettings{Id=form.Id,Name=form.Name.Trim(),ProfessionalTitle=form.ProfessionalTitle.Trim(),Email=form.Email.Trim(),GithubUrl=form.GithubUrl.Trim(),LinkedInUrl=form.LinkedInUrl.Trim(),CvUrl=form.CvUrl.Trim(),ProfileImage=form.ProfileImage};await Content.SaveSettingsAsync(value);await Reload();SetMessage("Configurações salvas com sucesso.");}catch(Exception ex){Logger.LogError(ex,"Failed to save Admin site settings");SetMessage("Não foi possível salvar as configurações. Tente novamente.","error");}}
+private void SetMessage(string text,string kind="success"){message=text;messageKind=kind;}private Task DismissMessage(){message="";return Task.CompletedTask;}
+}

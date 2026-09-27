@@ -1,0 +1,54 @@
+@using Portfolio.Models
+
+<div class="technology-picker">
+    <label class="technology-search-label">
+        <span>Pesquisar tecnologias cadastradas</span>
+        <input type="search" @bind="search" @bind:event="oninput" placeholder="Digite para filtrar..." />
+    </label>
+    @if (SelectedIds.Count > 0)
+    {
+        <div class="technology-picker-selected" aria-label="Tecnologias selecionadas">
+            @foreach (var selected in Items.Where(x => SelectedIds.Contains(x.Id)))
+            {
+                <span class="technology-picker-chip">
+                    @if (!string.IsNullOrWhiteSpace(selected.Icon)) { <img src="@selected.Icon" alt="" /> }
+                    @selected.Name
+                    <button type="button" aria-label="Remover @selected.Name" @onclick="() => Toggle(selected.Id, false)">×</button>
+                </span>
+            }
+        </div>
+    }
+    <div class="technology-picker-list" role="group" aria-label="Tecnologias disponíveis">
+        @foreach (var technology in FilteredItems)
+        {
+            <label class="technology-picker-option">
+                <input type="checkbox" checked="@SelectedIds.Contains(technology.Id)"
+                       @onchange="e => Toggle(technology.Id, e.Value is true)" />
+                @if (!string.IsNullOrWhiteSpace(technology.Icon)) { <img src="@technology.Icon" alt="" /> }
+                <span>@technology.Name</span>
+                <small>@technology.Category</small>
+            </label>
+        }
+        @if (!FilteredItems.Any())
+        {
+            <p class="technology-picker-empty">Nenhuma tecnologia encontrada. Cadastre-a em Tecnologias antes de associá-la.</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<Technology> Items { get; set; } = [];
+    [Parameter] public List<int> SelectedIds { get; set; } = [];
+    [Parameter] public EventCallback<List<int>> SelectedIdsChanged { get; set; }
+    private string search = "";
+    private IEnumerable<Technology> FilteredItems => Items
+        .Where(x => string.IsNullOrWhiteSpace(search) || x.Name.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase) || x.Category.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+    private async Task Toggle(int id, bool selected)
+    {
+        var next = SelectedIds.Distinct().ToList();
+        if (selected && !next.Contains(id)) next.Add(id);
+        if (!selected) next.Remove(id);
+        await SelectedIdsChanged.InvokeAsync(next);
+    }
+}

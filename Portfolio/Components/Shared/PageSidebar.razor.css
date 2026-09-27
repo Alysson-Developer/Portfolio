@@ -1,0 +1,61 @@
+.page-sidebar {
+    position: fixed;
+
+    left: clamp(1rem, 0.75vw, 1.5rem);
+    bottom: 0;
+
+    z-index: 200;
+
+    width: 3rem;
+    height: 10rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transition:
+            opacity var(--transition-normal),
+            visibility var(--transition-normal);
+}
+
+.page-sidebar.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.page-sidebar-socials {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.page-sidebar-social {
+    width: 2rem;
+    height: 2rem;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 0.15rem;
+
+    background: #050505;
+    color: var(--color-text);
+}
+
+.page-sidebar-social svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: currentColor;
+}
+
+.page-sidebar-line {
+    width: 1px;
+    flex: 1;
+    margin-top: 0.35rem;
+    background: rgba(248, 247, 250, 0.7);
+}

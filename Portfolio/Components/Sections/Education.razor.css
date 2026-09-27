@@ -1,0 +1,251 @@
+.education-section {
+
+    display: flex;
+    align-items: flex-start;
+
+    padding-top: clamp(5rem, 8vh, 7rem);
+    padding-bottom: 5rem;
+
+    background:
+            radial-gradient(
+                    circle at 50% 100%,
+                    rgba(65, 25, 130, 0.14),
+                    transparent 45%
+            );
+}
+
+.education-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* -------------------------------- */
+/* Header */
+/* -------------------------------- */
+
+.education-header {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.7rem;
+
+    width: min(100%, 55rem);
+}
+
+.education-title {
+    font-size: clamp(2.75rem, 4vw, 4rem);
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    letter-spacing: -0.04em;
+}
+
+.education-description {
+    color: var(--color-text-muted);
+
+    font-size: clamp(1rem, 1.2vw, 1.2rem);
+
+    line-height: 1.4;
+}
+
+/* -------------------------------- */
+/* Tabs */
+/* -------------------------------- */
+
+.education-tabs {
+    display: flex;
+    align-items: center;
+
+    margin-top: clamp(1.25rem, 2vh, 1.75rem);
+
+    width: fit-content;
+}
+
+.education-tab {
+    position: relative;
+
+    padding: 0 0 0.5rem;
+
+    color: var(--color-text);
+
+    font-size: clamp(1.1rem, 1.5vw, 1.45rem);
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.education-tab::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 0;
+    height: 3px;
+
+    background:
+            var(--color-primary-light);
+
+    transition:
+            width var(--transition-normal);
+}
+
+.education-tab.is-active::after {
+    width: 100%;
+}
+
+.education-tab-separator {
+    margin-inline: 0.45rem;
+
+    padding-bottom: 0.5rem;
+
+    color: var(--color-primary-light);
+
+    font-size: clamp(1.1rem, 1.5vw, 1.45rem);
+}
+
+/* -------------------------------- */
+/* Formação acadêmica */
+/* -------------------------------- */
+
+.education-academic-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 1.75rem;
+
+    margin-top: 1.25rem;
+}
+
+.education-academic-card {
+    width: 100%;
+
+    min-height: 12rem;
+
+    padding: 1.15rem;
+
+    background: var(--color-surface);
+}
+
+.education-academic-card h3 {
+    color: var(--color-text);
+
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+
+    line-height: 1.2;
+}
+
+.education-academic-title {
+    margin-top: 0.3rem;
+
+    color: var(--color-text-muted);
+
+    font-size: 1rem;
+
+    font-style: italic;
+}
+
+.education-academic-description {
+    margin-top: 1rem;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.95rem;
+
+    line-height: 1.5;
+}
+
+/* -------------------------------- */
+/* Cursos e certificados */
+/* -------------------------------- */
+
+.education-courses {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: clamp(1rem, 2vw, 1.8rem);
+
+    margin-top: 1.25rem;
+
+    align-items: stretch;
+}
+
+/* -------------------------------- */
+/* Responsivo */
+/* -------------------------------- */
+
+@media (max-width: 1200px) {
+
+    .education-courses {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 950px) {
+
+    .education-courses {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .education-section {
+        padding-top: 3rem;
+    }
+
+    .education-tabs {
+        width: 100%;
+
+        overflow-x: auto;
+
+        scrollbar-width: none;
+    }
+
+    .education-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .education-tab {
+        font-size: 1rem;
+    }
+
+    .education-tab-separator {
+        font-size: 1rem;
+    }
+
+    .education-academic-card {
+        min-height: 10rem;
+    }
+
+    .education-courses {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 0.8rem;
+    }
+
+}
+
+@media (max-width: 450px) {
+
+    .education-courses {
+        grid-template-columns: 1fr;
+    }
+
+}

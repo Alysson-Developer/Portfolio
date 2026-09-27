@@ -1,0 +1,11 @@
+# Local SQLite database
+*.db
+*.db-shm
+*.db-wal
+portfolio.db
+.env
+.env.*
+wwwroot/uploads/**
+!wwwroot/uploads/**/.gitkeep
+.idea/
+.vscode/

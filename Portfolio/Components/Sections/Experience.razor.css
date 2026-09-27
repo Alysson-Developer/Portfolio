@@ -1,0 +1,257 @@
+.experience-section {
+    min-height: 100svh;
+
+    display: flex;
+    align-items: center;
+}
+
+.experience-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: clamp(
+            2rem,
+            5vh,
+            3rem
+    );
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.experience-header {
+    width: min(
+            100%,
+            50rem
+    );
+}
+
+.experience-title {
+    font-size:
+            clamp(
+                    2.5rem,
+                    4vw,
+                    4rem
+            );
+
+    line-height: 1;
+    font-weight: 700;
+}
+
+.experience-description {
+    margin-top: 0.75rem;
+
+    color: var(--color-text-muted);
+
+    font-size:
+            clamp(
+                    0.85rem,
+                    1vw,
+                    1rem
+            );
+
+    line-height: 1.5;
+}
+
+/* =========================================================
+   EXPERIENCE SCREEN
+========================================================= */
+
+.experience-screen {
+    position: relative;
+
+    width: 100%;
+    height: min(58svh, 42rem);
+
+    overflow: hidden;
+
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    rgba(18, 7, 38, 0.96),
+                    rgba(8, 3, 19, 0.98)
+            );
+
+    box-shadow:
+            inset 0 0 80px rgba(0, 0, 0, 0.25);
+}
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.experience-timeline {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding-block: 3rem;
+
+    scrollbar-width: thin;
+    scrollbar-color:
+            var(--color-primary-light)
+            transparent;
+}
+
+.experience-timeline::-webkit-scrollbar {
+    width: 4px;
+}
+
+.experience-timeline::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.experience-timeline::-webkit-scrollbar-thumb {
+    background: var(--color-primary-light);
+}
+
+/* =========================================================
+   TIMELINE LINE
+========================================================= */
+
+.experience-timeline::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+    left: 50%;
+
+    width: 1px;
+
+    transform: translateX(-50%);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    transparent,
+                    var(--border-strong) 8%,
+                    var(--border-strong) 92%,
+                    transparent
+            );
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   TIMELINE ITEMS
+========================================================= */
+
+.experience-timeline-item {
+    position: relative;
+
+    width: 100%;
+
+    display: flex;
+
+    padding-block: 1.5rem;
+}
+
+.experience-timeline-item.is-left {
+    justify-content: flex-start;
+}
+
+.experience-timeline-item.is-right {
+    justify-content: flex-end;
+}
+
+.experience-timeline-content {
+    width: calc(50% - 2rem);
+}
+
+/* =========================================================
+   TIMELINE POINT
+========================================================= */
+
+.experience-timeline-point {
+    position: absolute;
+
+    top: 2.1rem;
+    left: 50%;
+
+    width: 0.7rem;
+    height: 0.7rem;
+
+    transform: translateX(-50%);
+
+    border: 2px solid var(--color-primary-light);
+    border-radius: 50%;
+
+    background: var(--color-background);
+
+    box-shadow:
+            0 0 0 4px rgba(93, 43, 211, 0.12);
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.experience-timeline-date {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.2rem;
+
+    margin-bottom: 0.6rem;
+}
+
+.experience-date {
+    color: var(--color-text);
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.experience-duration {
+    color: var(--color-text-subtle);
+
+    font-size: 0.7rem;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .experience-screen {
+        height: min(
+                62svh,
+                40rem
+        );
+    }
+
+    .experience-timeline::before {
+        left: 1.25rem;
+
+        transform: none;
+    }
+
+    .experience-timeline-item,
+    .experience-timeline-item.is-left,
+    .experience-timeline-item.is-right {
+        justify-content: flex-start;
+
+        padding-left: 3rem;
+    }
+
+    .experience-timeline-content {
+        width: calc(100% - 1rem);
+    }
+
+    .experience-timeline-point {
+        left: 1.25rem;
+    }
+}

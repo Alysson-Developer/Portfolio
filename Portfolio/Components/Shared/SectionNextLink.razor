@@ -1,0 +1,61 @@
+@if (IsVisible)
+{
+    <a
+        class="section-next-link"
+        href="@Href"
+        aria-label="Ir para @Label">
+
+        <span>
+            @Label
+        </span>
+
+        <span
+            class="section-next-line"
+            aria-hidden="true">
+        </span>
+
+    </a>
+}
+
+@code {
+
+    private bool IsVisible;
+    private string Label = string.Empty;
+    private string Href = string.Empty;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await JS.InvokeVoidAsync(
+            "portfolioNextLink.initialize",
+            DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public Task SetSection(string section)
+    {
+        var result = section switch
+        {
+            "inicio" => ("Projetos", "#projetos"),
+            "projetos" => ("Experiência", "#experiencia"),
+            "experiencia" => ("Educação", "#educacao"),
+            "educacao" => ("Tecnologias", "#tecnologias"),
+            "tecnologias" => ("Sobre", "#sobre"),
+            "sobre" => ("Contato", "#contato"),
+            _ => (string.Empty, string.Empty)
+        };
+
+        Label = result.Item1;
+        Href = result.Item2;
+
+        IsVisible = !string.IsNullOrWhiteSpace(Href);
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+}

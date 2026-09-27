@@ -1,0 +1,329 @@
+.experience-timeline-item {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: 1fr 2px 1fr;
+
+    min-height: 15rem;
+
+    scroll-snap-align: start;
+}
+
+
+/* LINHA CENTRAL */
+
+.experience-timeline-item::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    left: 50%;
+
+    width: 1px;
+
+    transform: translateX(-50%);
+
+    background:
+            linear-gradient(
+                    180deg,
+                    transparent,
+                    rgba(93, 43, 211, 0.9) 8%,
+                    rgba(93, 43, 211, 0.9) 92%,
+                    transparent
+            );
+
+    pointer-events: none;
+}
+
+
+/* PONTO */
+
+.experience-timeline-point {
+    position: absolute;
+
+    top: 2.5rem;
+    left: 50%;
+
+    width: 0.65rem;
+    height: 0.65rem;
+
+    transform: translateX(-50%);
+
+    border: 2px solid var(--color-primary-light);
+
+    border-radius: 50%;
+
+    background: var(--color-background);
+
+    box-shadow:
+            0 0 0 4px rgba(93, 43, 211, 0.12);
+
+    z-index: 3;
+}
+
+
+/* CONTEÚDO */
+
+.experience-timeline-content {
+    width: min(100%, 23rem);
+
+    padding-top: 1rem;
+}
+
+
+/* ESQUERDA */
+
+.experience-timeline-item.is-left
+.experience-timeline-content {
+    grid-column: 1;
+
+    justify-self: end;
+
+    margin-right: clamp(2rem, 5vw, 5rem);
+
+    text-align: right;
+}
+
+
+/* DIREITA */
+
+.experience-timeline-item.is-right
+.experience-timeline-content {
+    grid-column: 3;
+
+    justify-self: start;
+
+    margin-left: clamp(2rem, 5vw, 5rem);
+
+    text-align: left;
+}
+
+
+/* DATA */
+
+.experience-timeline-date {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.15rem;
+
+    margin-bottom: 0.65rem;
+}
+
+.experience-date {
+    color: var(--color-text);
+
+    font-size: 0.8rem;
+
+    font-weight: 600;
+}
+
+.experience-duration {
+    color: var(--color-text-muted);
+
+    font-size: 0.7rem;
+}
+
+
+/* CARD */
+
+.experience-card {
+    padding: 1.25rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 0.35rem;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    rgba(25, 12, 52, 0.95),
+                    rgba(13, 5, 29, 0.95)
+            );
+
+    text-align: left;
+
+    transition:
+            border-color var(--transition-normal),
+            transform var(--transition-normal);
+}
+
+.experience-card:hover {
+    border-color: rgba(93, 43, 211, 0.45);
+}
+
+
+/* TEXTO */
+
+.experience-card-company {
+    color: var(--color-text);
+
+    font-size: 1.1rem;
+
+    line-height: 1.2;
+}
+
+.experience-card-position {
+    margin-top: 0.3rem;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.78rem;
+}
+
+
+/* TECNOLOGIAS */
+
+.experience-card-technologies {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 0.35rem;
+
+    margin-top: 0.9rem;
+}
+
+.experience-card-technology {
+    padding: 0.25rem 0.55rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-radius: 999px;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.65rem;
+
+    line-height: 1.2;
+}
+
+.experience-card-technology img {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    object-fit: contain;
+}
+
+
+/* BOTÃO */
+
+.experience-card-toggle {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.4rem;
+
+    margin-top: 1rem;
+
+    padding: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 0.72rem;
+
+    cursor: pointer;
+
+    transition: color var(--transition-fast);
+}
+
+.experience-card-toggle:hover {
+    color: var(--color-primary-light);
+}
+
+.experience-card-arrow {
+    transition: transform var(--transition-normal);
+}
+
+.experience-card-arrow.is-expanded {
+    transform: rotate(180deg);
+}
+
+
+/* DETALHES */
+
+.experience-card-details {
+    display: grid;
+
+    grid-template-rows: 0fr;
+
+    opacity: 0;
+
+    transition:
+            grid-template-rows var(--transition-slow),
+            opacity var(--transition-normal);
+}
+
+.experience-card-details::after {
+    content: "";
+}
+
+.experience-card-details > p {
+    min-height: 0;
+
+    overflow: hidden;
+
+    color: var(--color-text-secondary);
+
+    font-size: 0.75rem;
+
+    line-height: 1.6;
+}
+
+.experience-card-details.is-expanded {
+    grid-template-rows: 1fr;
+
+    margin-top: 0.85rem;
+
+    opacity: 1;
+}
+
+.experience-card-details p + p {
+    margin-top: 0.7rem;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .experience-timeline-item {
+        grid-template-columns: 1.5rem 1px 1fr;
+
+        min-height: 13rem;
+    }
+
+    .experience-timeline-item::before {
+        left: 0.75rem;
+
+        transform: translateX(-50%);
+    }
+
+    .experience-timeline-point {
+        left: 0.75rem;
+    }
+
+    .experience-timeline-item.is-left
+    .experience-timeline-content,
+
+    .experience-timeline-item.is-right
+    .experience-timeline-content {
+        grid-column: 3;
+
+        justify-self: start;
+
+        width: 100%;
+
+        margin-left: 1.5rem;
+        margin-right: 0;
+
+        text-align: left;
+    }
+
+}

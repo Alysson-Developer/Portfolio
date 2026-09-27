@@ -1,0 +1,45 @@
+@using Portfolio.Models
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section id="experiencia" class="experience-section portfolio-section">
+
+    <div class="experience-container portfolio-container">
+
+        <header class="experience-header">
+
+            <h2 class="experience-title">
+                Experiência Profissional
+            </h2>
+
+            <p class="experience-description">
+                Conheça minha trajetória profissional, da atuação mais recente
+                aos primeiros projetos.
+            </p>
+
+        </header>
+
+        <div class="experience-screen">
+
+            <div class="experience-timeline">
+
+                @for (var i = 0; i < ExperienceItems.Count; i++)
+                {
+                    <ExperienceItem
+                        Experience="ExperienceItems[i]"
+                        IsRight="@(i % 2 == 0)" />
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+@code {
+
+    private List<WorkExperience> ExperienceItems = [];
+    protected override async Task OnInitializedAsync() => ExperienceItems = await Content.GetExperiencesAsync();
+
+}

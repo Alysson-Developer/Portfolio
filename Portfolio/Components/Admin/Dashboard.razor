@@ -1,0 +1,15 @@
+@page "/admin"
+@using Portfolio.Services
+@layout AdminLayout
+@inject IPortfolioContentService Content
+@inject ILogger<Dashboard> Logger
+<AdminPageHeader Title="Dashboard" Description="Visão geral do conteúdo do seu portfólio." />
+@if (!string.IsNullOrEmpty(error)) { <AdminAlert Kind="error" Message="@error" /> }
+<section class="dashboard-grid" aria-label="Resumo do conteúdo">
+    <article class="summary-card"><span class="summary-icon teal">▧</span><div><span>Projetos publicados</span><strong>@counts[0]</strong></div><a href="/admin/projects" aria-label="Gerenciar projetos">→</a></article>
+    <article class="summary-card"><span class="summary-icon blue">◷</span><div><span>Experiências</span><strong>@counts[1]</strong></div><a href="/admin/experience" aria-label="Gerenciar experiências">→</a></article>
+    <article class="summary-card"><span class="summary-icon violet">▤</span><div><span>Formações</span><strong>@counts[2]</strong></div><a href="/admin/education" aria-label="Gerenciar formações">→</a></article>
+    <article class="summary-card"><span class="summary-icon amber">◇</span><div><span>Tecnologias</span><strong>@counts[3]</strong></div><a href="/admin/technologies" aria-label="Gerenciar tecnologias">→</a></article>
+</section>
+<section class="welcome-panel"><div><span class="welcome-kicker">SEU PORTFÓLIO, SEMPRE ATUALIZADO</span><h2>Gerencie seu conteúdo</h2><p>Atualize projetos, trajetória profissional, formação e informações de contato em um só lugar.</p></div><a href="/admin/projects" class="primary-link">Gerenciar projetos <span>→</span></a></section>
+@code { private int[] counts = new int[4]; private string? error; protected override async Task OnInitializedAsync(){try{counts=await Content.GetCountsAsync();}catch(Exception ex){Logger.LogError(ex,"Failed to load Admin dashboard counts");error="Não foi possível carregar o resumo agora.";}} }

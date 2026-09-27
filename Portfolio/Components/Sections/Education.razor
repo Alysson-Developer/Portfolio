@@ -1,0 +1,103 @@
+@using Portfolio.Models
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section
+    id="educacao"
+    class="education-section portfolio-section">
+
+    <div class="education-container portfolio-container">
+
+        <header class="education-header">
+
+            <h2 class="education-title">
+                Educação
+            </h2>
+
+            <p class="education-description">
+                Todas as minhas formações, cursos e certificados!
+            </p>
+
+        </header>
+
+        <div class="education-tabs">
+
+            <button
+                type="button"
+                class="education-tab @(ActiveTab == EducationTab.Academic ? "is-active" : "")"
+                @onclick="() => ActiveTab = EducationTab.Academic">
+
+                Formação Acadêmica
+
+            </button>
+
+            <span class="education-tab-separator">
+                |
+            </span>
+
+            <button
+                type="button"
+                class="education-tab @(ActiveTab == EducationTab.Courses ? "is-active" : "")"
+                @onclick="() => ActiveTab = EducationTab.Courses">
+
+                Cursos e Certificados
+
+            </button>
+
+        </div>
+
+        @if (ActiveTab == EducationTab.Academic)
+        {
+            <div class="education-academic-list">
+
+                @foreach (var education in AcademicItems)
+                {
+                    <article class="education-academic-card">
+
+                        <h3>
+                            @education.Institution
+                        </h3>
+
+                        <p class="education-academic-title">
+                            @education.Title
+                        </p>
+
+                        @if (!string.IsNullOrWhiteSpace(education.Description))
+                        {
+                            <p class="education-academic-description">
+                                @education.Description
+                            </p>
+                        }
+
+                    </article>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="education-courses">
+
+                @foreach (var education in CourseItems)
+                {
+                    <EducationCard Education="education" />
+                }
+
+            </div>
+        }
+
+    </div>
+</section>
+
+@code {
+
+    private EducationTab ActiveTab { get; set; }
+        = EducationTab.Academic;
+
+    private List<EducationItem> EducationItems = [];
+    private IEnumerable<EducationItem> AcademicItems => EducationItems.Where(x=>x.IsAcademic);
+    private IEnumerable<EducationItem> CourseItems => EducationItems.Where(x=>!x.IsAcademic);
+    protected override async Task OnInitializedAsync() => EducationItems = await Content.GetEducationAsync();
+
+    private enum EducationTab { Academic, Courses }
+
+}

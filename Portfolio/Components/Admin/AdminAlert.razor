@@ -1,0 +1,2 @@
+@if (!string.IsNullOrWhiteSpace(Message)) { <div class="admin-alert @Kind" role="@(Kind == "error" ? "alert" : "status")"><span>@(Kind == "error" ? "!" : "✓")</span><div>@Message</div><button type="button" @onclick="Dismiss" aria-label="Fechar mensagem">×</button></div> }
+@code { [Parameter] public string? Message { get; set; } [Parameter] public string Kind { get; set; } = "success"; [Parameter] public EventCallback OnDismiss { get; set; } private Task Dismiss() => OnDismiss.InvokeAsync(); }

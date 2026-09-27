@@ -1,0 +1,169 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section
+    id="contato"
+    class="contact-section portfolio-section">
+
+    <div class="contact-container">
+
+        <div class="contact-content">
+
+            <h2 class="contact-title">
+                Contato
+            </h2>
+
+            <p class="contact-description">
+                Sinta-se à vontade para entrar em contato e se conectar!
+            </p>
+
+            <div class="contact-email-wrapper">
+
+                <a
+                    class="contact-email"
+                    href="mailto:@Email">
+
+                    @Email
+
+                </a>
+
+                <button
+                    type="button"
+                    class="contact-copy-button"
+                    @onclick="CopyEmail"
+                    aria-label="Copiar e-mail">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+
+                        <rect
+                            x="8"
+                            y="2"
+                            width="11"
+                            height="15"
+                            rx="2"/>
+
+                        <path
+                            d="M16 7v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1"/>
+
+                    </svg>
+
+                </button>
+
+            </div>
+
+            <div class="contact-socials">
+
+                <a
+                    href="@GithubUrl"
+                    class="contact-social"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+
+                        <path
+                            d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.92.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.67 1.25 3.32.96.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .96-.31 3.15 1.18A10.93 10.93 0 0 1 12 6.34c.97 0 1.94.13 2.85.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.68.41.35.77 1.04.77 2.1 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+
+                    </svg>
+
+                </a>
+
+                <a
+                    href="@LinkedInUrl"
+                    class="contact-social"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+
+                        <path
+                            d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1-.02-5ZM2.75 9.75h4.5V21h-4.5V9.75ZM10 9.75h4.31v1.54h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.9V21h-4.5v-4.57c0-1.09-.02-2.5-1.52-2.5-1.52 0-1.75 1.19-1.75 2.42V21H10V9.75Z"/>
+
+                    </svg>
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <footer class="contact-footer">
+
+            <div class="contact-footer-line"></div>
+
+            <div class="contact-footer-content">
+
+                <div class="contact-footer-socials">
+
+                    <a
+                        href="@GithubUrl"
+                        class="contact-footer-social"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="GitHub">
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.92.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.67 1.25 3.32.96.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .96-.31 3.15 1.18A10.93 10.93 0 0 1 12 6.34c.97 0 1.94.13 2.85.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.68.41.35.77 1.04.77 2.1 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+                        </svg>
+
+                    </a>
+
+                    <a
+                        href="@LinkedInUrl"
+                        class="contact-footer-social"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="LinkedIn">
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1-.02-5ZM2.75 9.75h4.5V21h-4.5V9.75ZM10 9.75h4.31v1.54h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.9V21h-4.5v-4.57c0-1.09-.02-2.5-1.52-2.5-1.52 0-1.75 1.19-1.75 2.42V21H10V9.75Z"/>
+                        </svg>
+
+                    </a>
+
+                </div>
+
+                <p>
+                    Desenvolvido por Alysson Serafim Brito © 2026
+                </p>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+</section>
+
+@code {
+
+    private string Email = "alyssonsb.dev@gmail.com", GithubUrl = "#", LinkedInUrl = "#";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var s = await Content.GetSettingsAsync();
+        if (s is null) return;
+        if (!string.IsNullOrWhiteSpace(s.Email)) Email = s.Email;
+        if (!string.IsNullOrWhiteSpace(s.GithubUrl)) GithubUrl = s.GithubUrl;
+        if (!string.IsNullOrWhiteSpace(s.LinkedInUrl)) LinkedInUrl = s.LinkedInUrl;
+    }
+
+    private async Task CopyEmail()
+    {
+        await JS.InvokeVoidAsync(
+            "navigator.clipboard.writeText",
+            Email);
+    }
+
+}

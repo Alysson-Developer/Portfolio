@@ -1,0 +1,69 @@
+@inject Portfolio.Services.IPortfolioContentService Content
+
+<section
+    id="sobre"
+    class="about-section portfolio-section">
+
+    <div class="about-container portfolio-container">
+
+        <header class="about-header">
+
+            <h2 class="about-title">
+                @(about?.Title ?? "Sobre")
+            </h2>
+            
+
+        </header>
+
+        <div class="about-content">
+
+            <div class="about-role" aria-hidden="true">
+
+                @if (!string.IsNullOrWhiteSpace(about?.Description))
+                {
+                    <p class="about-role">@about.Description</p>
+                }
+
+            </div>
+
+            <div class="about-side">
+
+                <div class="about-image">
+
+                    <img
+                        src="@(about?.Image ?? "/images/Image.png")"
+                        alt="Imagem de apresentação" />
+
+                </div>
+
+                <div class="about-languages">
+
+                    <h3>
+                        Idiomas
+                    </h3>
+
+                    @foreach (var language in languages)
+                    {
+                        <div class="language-item">
+                            <span class="language-name">@language.Name</span>
+                            <div class="language-bar">
+                                <span class="language-progress" style="width: @(Math.Clamp(language.Proficiency, 0, 100))%"></span>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+</section>
+
+@code {
+    private Portfolio.Models.About? about;
+    private List<Portfolio.Models.Language> languages = [];
+    protected override async Task OnInitializedAsync() { about = await Content.GetAboutAsync(); languages = await Content.GetLanguagesAsync(); }
+}

@@ -1,0 +1,28 @@
+@page "/admin/login"
+@layout AdminLoginLayout
+<PageTitle>Administração</PageTitle>
+<div class="login-card"><h1>Boas-vindas</h1>
+    <p>Acesse o painel para gerenciar o seu portfólio.</p>
+    @if (!PasswordConfigured)
+    {
+        <p role="alert">A senha administrativa ainda não foi configurada. Defina a variável de ambiente Admin__Password e reinicie a aplicação.</p>
+    }
+    @if (ShowError)
+    {
+        <p role="alert">Senha inválida.</p>
+    }
+    <form method="post" action="/admin/session"><label>Senha <input type="password" name="password"
+                                                                    autocomplete="current-password" required disabled="@(!PasswordConfigured)"/></label>
+        <button class="admin-primary-button" type="submit" disabled="@(!PasswordConfigured)">Entrar no painel</button>
+    </form>
+</div>
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+
+    [Inject] private Portfolio.Services.AdminPasswordHash PasswordHash { get; set; } = default!;
+    private bool PasswordConfigured => !string.IsNullOrEmpty(PasswordHash.Value);
+    private bool ShowError => Error == "1";
+}

@@ -1,0 +1,30 @@
+.technology-item {
+    width: 4.5rem;
+    height: 4.5rem;
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 0.85rem;
+
+    background: var(--color-surface);
+
+    transition:
+            transform var(--transition-normal),
+            background var(--transition-normal);
+}
+
+.technology-item:hover {
+    transform: translateY(-3px);
+
+    background: var(--color-surface-hover);
+}
+
+.technology-item img {
+    width: 3.4rem;
+    height: 3.4rem;
+
+    object-fit: contain;
+}

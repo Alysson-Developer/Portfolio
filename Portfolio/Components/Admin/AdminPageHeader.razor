@@ -1,0 +1,5 @@
+<header class="admin-page-heading">
+    <div><div class="admin-eyebrow">PORTFOLIO / ADMIN</div><h1>@Title</h1><p>@Description</p></div>
+    @if (ChildContent is not null) { <div class="heading-actions">@ChildContent</div> }
+</header>
+@code { [Parameter, EditorRequired] public string Title { get; set; } = ""; [Parameter] public string Description { get; set; } = ""; [Parameter] public RenderFragment? ChildContent { get; set; } }

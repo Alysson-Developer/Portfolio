@@ -1,0 +1,38 @@
+@using Portfolio.Models
+
+@if (!string.IsNullOrWhiteSpace(Technology.Url))
+{
+    <a
+        class="technology-item"
+        href="@Technology.Url"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="@Technology.Name"
+        title="@Technology.Name">
+
+        <img
+            src="@Technology.Icon"
+            alt="@Technology.Name" />
+
+    </a>
+}
+else
+{
+    <div
+        class="technology-item"
+        title="@Technology.Name"
+        aria-label="@Technology.Name">
+
+        <img
+            src="@Technology.Icon"
+            alt="@Technology.Name" />
+
+    </div>
+}
+
+@code {
+
+    [Parameter, EditorRequired]
+    public Technology Technology { get; set; } = default!;
+
+}
