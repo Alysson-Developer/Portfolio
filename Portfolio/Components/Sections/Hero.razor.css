@@ -122,8 +122,8 @@
    ========================================================= */
 
 .hero-art {
-    position: absolute;
-    z-index: 1;
+    position: relative;
+    z-index: 3;
 
     top: 50%;
     right: 0;

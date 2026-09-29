@@ -1,7 +1,7 @@
 .education-section {
 
     display: flex;
-    align-items: flex-start;
+    align-items: center;
 
     padding-top: clamp(5rem, 8vh, 7rem);
     padding-bottom: 5rem;
