@@ -55,7 +55,7 @@ builder.Services.AddSingleton<IAmazonS3>(_ =>
 
 builder.Services.AddScoped<IStorageService, R2StorageService>();
 
-builder.Services.AddDbContext<PortfolioDbContext>(o =>
+builder.Services.AddPooledDbContextFactory<PortfolioDbContext>(o =>
     o.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IPortfolioContentService, PortfolioContentService>();
