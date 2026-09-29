@@ -1,6 +1,7 @@
 .projects-section {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    min-height: 90svh;
 }
 
 .projects-container {

@@ -1,7 +1,8 @@
 .education-section {
 
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    min-height: 90svh;
 
     padding-top: clamp(5rem, 8vh, 7rem);
     padding-bottom: 5rem;
