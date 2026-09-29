@@ -66,9 +66,6 @@
             clamp(3rem, 7vw, 8rem);
 
     flex: 1;
-
-    margin-top:
-            clamp(1.5rem, 3vh, 2.5rem);
 }
 
 /* ========================================
