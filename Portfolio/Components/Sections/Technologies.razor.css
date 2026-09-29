@@ -34,11 +34,6 @@
             100%,
             55rem
     );
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 0.7rem;
 }
 
 .technologies-title {
