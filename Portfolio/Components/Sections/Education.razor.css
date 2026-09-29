@@ -2,10 +2,9 @@
 
     display: flex;
     align-items: flex-start;
-    min-height: 90svh;
+    min-height: 100svh;
 
     padding-top: clamp(5rem, 8vh, 7rem);
-    padding-bottom: 5rem;
 
     background:
             radial-gradient(
