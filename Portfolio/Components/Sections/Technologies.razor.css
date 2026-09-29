@@ -168,10 +168,6 @@
         align-items: flex-start;
     }
 
-    .technologies-container {
-        padding-top: 3rem;
-    }
-
     .technologies-grid {
         grid-template-columns: 1fr;
 

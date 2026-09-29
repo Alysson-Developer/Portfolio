@@ -50,7 +50,6 @@
 
 .about-description {
     max-width: 52rem;
-    margin-top: 1.25rem;
     color: var(--color-text-secondary);
     line-height: 1.7;
 }
@@ -225,9 +224,7 @@
 
     .about-container {
         min-height: auto;
-
-        padding-top: 3rem;
-        padding-bottom: 7rem;
+        padding-bottom: 5rem;
     }
 
     .about-content {
