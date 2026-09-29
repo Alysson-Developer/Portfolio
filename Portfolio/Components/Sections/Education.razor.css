@@ -4,8 +4,6 @@
     align-items: flex-start;
     min-height: 100svh;
 
-    padding-top: clamp(5rem, 8vh, 7rem);
-
     background:
             radial-gradient(
                     circle at 50% 100%,
