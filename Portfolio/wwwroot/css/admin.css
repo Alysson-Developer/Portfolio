@@ -718,6 +718,73 @@
     }
 }
 
+@media (max-width: 900px) {
+    .panel-heading,
+    .record-title-line {
+        flex-wrap: wrap;
+    }
+
+    .image-upload-controls {
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+
+    .admin-primary-button,
+    .secondary-button,
+    .upload-picker,
+    .upload-submit {
+        min-height: 44px;
+    }
+
+    .record-with-image {
+        min-width: 0;
+    }
+
+    .upload-filename {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 450px) {
+    .editor-panel form,
+    .panel-heading,
+    .record-list {
+        padding-inline: 12px;
+    }
+
+    .admin-tag-add {
+        flex-wrap: wrap;
+    }
+
+    .admin-tag-add input {
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-height: 500px) {
+    .admin-content {
+        padding-block: 18px 36px;
+    }
+
+    .login-card {
+        margin-top: 4vh;
+        padding-block: 22px;
+    }
+
+    .image-upload {
+        align-items: flex-start;
+    }
+
+    .form-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 2;
+        padding-block: 10px;
+        background: linear-gradient(180deg, transparent, var(--color-background-secondary) 35%);
+    }
+}
+
 .image-upload {
     display: flex;
     align-items: center;

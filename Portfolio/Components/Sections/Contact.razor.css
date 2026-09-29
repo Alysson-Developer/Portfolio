@@ -13,7 +13,7 @@
     align-items: stretch;
 
     scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
 
     background:
             radial-gradient(
@@ -294,5 +294,34 @@
         max-width: 15rem;
 
         font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 900px) and (max-height: 450px) {
+    .contact-section {
+        height: auto;
+        min-height: 100svh;
+        overflow: visible;
+    }
+
+    .contact-container {
+        height: auto;
+        min-height: 100svh;
+        padding-block: 1rem 5.5rem;
+    }
+
+    .contact-content {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: min(90%, 60rem);
+        margin: auto;
+        padding-block: 1rem;
+        transform: none;
+    }
+
+    .contact-footer {
+        position: absolute;
+        bottom: 0;
     }
 }

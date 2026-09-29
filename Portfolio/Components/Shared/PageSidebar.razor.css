@@ -27,6 +27,13 @@
     visibility: hidden;
     pointer-events: none;
 }
+
+@media (max-width: 900px) {
+    .page-sidebar {
+        display: none;
+    }
+}
+
 .page-sidebar-socials {
     display: flex;
     flex-direction: column;

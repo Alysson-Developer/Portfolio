@@ -28,7 +28,7 @@
     padding-inline: var(--page-padding-inline);
 
     scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
 }
 
 .portfolio-container {
@@ -41,11 +41,33 @@
 }
 
 .scroll-container {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
+}
+
+@media (max-width: 900px) {
+    html {
+        scroll-snap-type: y proximity;
+    }
+
+    .portfolio-section {
+        scroll-snap-stop: normal;
+    }
+
+    .scroll-container {
+        scroll-snap-type: y proximity;
+    }
 }
 
 @media (max-width: 768px) {
     :root {
         --navbar-height: 4rem;
+        --page-padding-inline: 1.25rem;
+        --page-padding-navbar: 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    :root {
+        --page-padding-inline: 1rem;
     }
 }

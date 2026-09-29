@@ -1,1 +1,4 @@
 .login-shell{min-height:100vh;padding:28px;background:var(--color-background-dark);color:var(--color-text);font-family:var(--font-family-base)}.login-brand{display:inline-flex;align-items:center;gap:10px;color:var(--color-text);text-decoration:none;font-weight:700}.login-brand span{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--color-primary-light);color:var(--color-text);font-size:19px}
+
+@media(max-width:600px){.login-shell{padding:18px 14px}.login-card{margin-top:8vh;padding:24px 18px}}
+@media(max-height:500px){.login-shell{padding:14px}.login-card{margin-top:3vh;padding:20px 18px}}

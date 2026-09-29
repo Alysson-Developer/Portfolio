@@ -1,3 +1,4 @@
+@namespace Portfolio.Components.Admin
 <div class="admin-tag-editor"><div class="admin-tag-add"><input @bind="draft" @bind:event="oninput" placeholder="Digite e adicione uma tecnologia"/><button type="button" class="secondary-button" @onclick="Add">Adicionar</button></div><div class="technology-chips">@foreach(var value in Values){<span class="technology-chip">@value<button type="button" @onclick="()=>Remove(value)" aria-label="Remover @value">×</button></span>}</div></div>
 @code {
     [Parameter] public List<string> Values { get; set; } = [];

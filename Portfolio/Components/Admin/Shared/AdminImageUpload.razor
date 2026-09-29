@@ -1,3 +1,4 @@
+@namespace Portfolio.Components.Admin
 <div class="image-upload">
     <div class="image-preview @(string.IsNullOrWhiteSpace(Value) ? "empty" : "")">
         @if (!string.IsNullOrWhiteSpace(Preview)) { <img src="@Preview" alt="Prévia da imagem" /> }
@@ -19,7 +20,7 @@
     private string? Preview, _selectedName, _error;
     private bool _selected, _busy;
     protected override void OnParametersSet() { if (!_selected) Preview = Value; }
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/adminUpload.js"); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) _module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/admin/adminUpload.js"); }
     private async Task FileSelected(ChangeEventArgs _)
     {
         try
