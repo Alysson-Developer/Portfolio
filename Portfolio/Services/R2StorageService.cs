@@ -30,7 +30,7 @@ public sealed class R2StorageService : IStorageService
             ?? throw new InvalidOperationException("R2:PublicBaseUrl não configurado.");
 
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        var objectName = $"{kind}/{Guid.NewGuid():N}{extension}";
+        var objectName = $"portfolio-files/{kind}/{Guid.NewGuid():N}{extension}";
 
         var request = new PutObjectRequest
         {
