@@ -1,11 +1,12 @@
 using System.Security.Claims;
 using System.Threading.RateLimiting;
+using Amazon.Runtime;
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Components;
 using Portfolio.Data;
@@ -14,28 +15,51 @@ using Portfolio.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var storagePathSetting = builder.Configuration["Portfolio:StoragePath"] ?? ".";
-var storageRoot = Path.GetFullPath(storagePathSetting, builder.Environment.ContentRootPath);
-var uploadsPathSetting = builder.Configuration["Portfolio:UploadsPath"];
-var uploadsRoot = Path.GetFullPath(
-    uploadsPathSetting ?? Path.Combine(storageRoot, "uploads"),
+var storageRoot = Path.GetFullPath(
+    storagePathSetting,
     builder.Environment.ContentRootPath);
-Directory.CreateDirectory(storageRoot);
-Directory.CreateDirectory(uploadsRoot);
 
-var configuredConnectionString = builder.Configuration.GetConnectionString("Portfolio");
-var connectionString = string.IsNullOrWhiteSpace(configuredConnectionString)
-    ? new SqliteConnectionStringBuilder { DataSource = Path.Combine(storageRoot, "portfolio.db") }.ToString()
-    : configuredConnectionString;
-var databasePath = new SqliteConnectionStringBuilder(connectionString).DataSource;
-if (!string.IsNullOrWhiteSpace(databasePath) && databasePath != ":memory:")
-    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(databasePath, builder.Environment.ContentRootPath))!);
+Directory.CreateDirectory(storageRoot);
+
+var connectionString = builder.Configuration.GetConnectionString("Portfolio");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "ConnectionStrings:Portfolio não configurada.");
+}
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+var r2Endpoint = builder.Configuration["R2:Endpoint"]
+                 ?? throw new InvalidOperationException("R2:Endpoint não configurado.");
+
+var r2AccessKey = builder.Configuration["R2:AccessKey"]
+                  ?? throw new InvalidOperationException("R2:AccessKey não configurado.");
+
+var r2SecretKey = builder.Configuration["R2:SecretKey"]
+                  ?? throw new InvalidOperationException("R2:SecretKey não configurado.");
+
+var r2Credentials = new BasicAWSCredentials(r2AccessKey, r2SecretKey);
+
+builder.Services.AddSingleton<IAmazonS3>(_ =>
+{
+    var config = new AmazonS3Config
+    {
+        ServiceURL = r2Endpoint,
+        ForcePathStyle = true
+    };
+
+    return new AmazonS3Client(r2Credentials, config);
+});
+
+builder.Services.AddScoped<IStorageService, R2StorageService>();
+
 builder.Services.AddDbContext<PortfolioDbContext>(o =>
-    o.UseSqlite(connectionString));
+    o.UseNpgsql(connectionString));
+
 builder.Services.AddScoped<IPortfolioContentService, PortfolioContentService>();
 builder.Services.AddSingleton<IPasswordHasher<string>, PasswordHasher<string>>();
-builder.Services.AddSingleton(new PortfolioUploadStorage(uploadsRoot));
 builder.Services.Configure<ForwardedHeadersOptions>(o =>
 {
     o.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
@@ -82,37 +106,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseWhen(context => !context.Request.Path.Equals("/health", StringComparison.OrdinalIgnoreCase),
     branch => branch.UseHttpsRedirection());
-app.Use(async (context, next) =>
-{
-    if (!context.Request.Path.StartsWithSegments("/uploads", out var remainder))
-    {
-        await next();
-        return;
-    }
 
-    if (context.Request.Method is not ("GET" or "HEAD"))
-    {
-        context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
-        return;
-    }
-
-    var parts = remainder.Value?.Split('/', StringSplitOptions.RemoveEmptyEntries) ?? [];
-    var storage = context.RequestServices.GetRequiredService<PortfolioUploadStorage>();
-    if (parts.Length != 2 || !storage.TryResolve(parts[0], parts[1], out var filePath, out var contentType))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        return;
-    }
-
-    context.Response.ContentType = contentType;
-    if (HttpMethods.IsHead(context.Request.Method))
-    {
-        context.Response.ContentLength = new FileInfo(filePath).Length;
-        return;
-    }
-
-    await context.Response.SendFileAsync(filePath);
-});
 app.UseStaticFiles();
 app.UseRateLimiter();
 app.UseAuthentication();
@@ -148,37 +142,82 @@ app.MapPost("/admin/logout", async (HttpContext c) =>
     await c.SignOutAsync();
     return Results.Redirect("/admin/login");
 });
-app.MapPost("/admin/upload/{kind}", async (string kind, HttpRequest request, PortfolioUploadStorage storage) =>
+app.MapPost("/admin/upload/{kind}", async (
+    string kind,
+    HttpRequest request,
+    IStorageService storage) =>
 {
     var form = await request.ReadFormAsync();
     var file = form.Files.GetFile("file");
-    if (file is null) return Results.BadRequest("Arquivo ausente.");
+
+    if (file is null)
+        return Results.BadRequest("Arquivo ausente.");
+
     var allowed = new Dictionary<string, string>
-        { [".png"] = "image/png", [".jpg"] = "image/jpeg", [".jpeg"] = "image/jpeg", [".webp"] = "image/webp" };
-    if (!storage.TryGetDirectory(kind, out var dir) || file.Length is < 1 or > 5_242_880)
-        return Results.BadRequest("Tipo ou tamanho de imagem inválido (máximo 5 MB).");
-    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-    if (!allowed.TryGetValue(ext, out var mime) || file.ContentType != mime)
-        return Results.BadRequest("Formato de imagem inválido.");
-    var bytes = new byte[file.Length];
-    await using (var input = file.OpenReadStream())
     {
-        await input.ReadExactlyAsync(bytes);
+        [".png"] = "image/png",
+        [".jpg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".webp"] = "image/webp"
+    };
+
+    var allowedKinds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "projects",
+        "education",
+        "profile",
+        "technologies"
+    };
+
+    if (!allowedKinds.Contains(kind))
+        return Results.BadRequest("Tipo de imagem inválido.");
+
+    if (file.Length is < 1 or > 5_242_880)
+        return Results.BadRequest("Tipo ou tamanho de imagem inválido (máximo 5 MB).");
+
+    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+    if (!allowed.TryGetValue(ext, out var mime) ||
+        !string.Equals(file.ContentType, mime, StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.BadRequest("Formato de imagem inválido.");
     }
 
+    await using var input = file.OpenReadStream();
+
+    using var memory = new MemoryStream();
+    await input.CopyToAsync(memory);
+
+    var bytes = memory.ToArray();
+
     var valid = ext == ".png"
-        ? bytes.AsSpan().StartsWith(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })
-        :
-        ext == ".webp"
-            ?
-            System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&
-            System.Text.Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP"
-            : bytes[0] == 255 && bytes[1] == 216 && bytes[^2] == 255 && bytes[^1] == 217;
-    if (!valid) return Results.BadRequest("O conteúdo não corresponde a uma imagem válida.");
-    var name = $"{Guid.NewGuid():N}{ext}";
-    Directory.CreateDirectory(dir);
-    await File.WriteAllBytesAsync(Path.Combine(dir, name), bytes);
-    return Results.Ok(new { url = $"/uploads/{kind}/{name}" });
+        ? bytes.Length >= 8 &&
+          bytes.AsSpan().StartsWith(
+              new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })
+        : ext == ".webp"
+            ? bytes.Length >= 12 &&
+              System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&
+              System.Text.Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP"
+            : bytes.Length >= 4 &&
+              bytes[0] == 255 &&
+              bytes[1] == 216 &&
+              bytes[^2] == 255 &&
+              bytes[^1] == 217;
+
+    if (!valid)
+        return Results.BadRequest(
+            "O conteúdo não corresponde a uma imagem válida.");
+
+    await using var uploadStream = new MemoryStream(bytes);
+
+    var url = await storage.UploadAsync(
+        uploadStream,
+        file.FileName,
+        mime,
+        kind,
+        request.HttpContext.RequestAborted);
+
+    return Results.Ok(new { url });
 }).RequireAuthorization();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 using (var scope = app.Services.CreateScope())
