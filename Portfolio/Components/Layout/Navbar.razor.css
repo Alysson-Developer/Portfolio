@@ -34,8 +34,8 @@
     left: var(--page-padding-navbar);
     top: 50%;
 
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3rem;
+    height: 3rem;
 
     transform: translateY(-50%);
 
