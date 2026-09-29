@@ -28,7 +28,7 @@ public class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options) : 
         b.Entity<ProjectTechnology>().HasIndex(x => new { x.ProjectId, x.TechnologyId }).IsUnique();
         b.Entity<WorkExperienceTechnology>().HasIndex(x => new { x.WorkExperienceId, x.TechnologyId }).IsUnique();
         b.Entity<WorkExperience>().ToTable(t => t.HasCheckConstraint(
-            "CK_WorkExperiences_CurrentHasNoEndDate", "\"IsCurrent\" = 0 OR \"EndDate\" IS NULL"));
+            "CK_WorkExperiences_CurrentHasNoEndDate", "\"IsCurrent\" = FALSE OR \"EndDate\" IS NULL"));
         b.Entity<Language>().ToTable(t => t.HasCheckConstraint(
             "CK_Languages_Proficiency_Range", "\"Proficiency\" >= 0 AND \"Proficiency\" <= 100"));
         b.Entity<Technology>().HasData(
