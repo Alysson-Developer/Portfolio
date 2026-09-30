@@ -1,0 +1,177 @@
+@namespace Portfolio.Components.Admin
+
+<div class="file-upload">
+    <div class="file-upload-current">
+        @if (!string.IsNullOrWhiteSpace(Value))
+        {
+            <div class="file-upload-icon" aria-hidden="true">
+                PDF
+            </div>
+
+            <div class="file-upload-info">
+                <strong>Currículo publicado</strong>
+
+                <a href="@Value"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Abrir currículo
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="file-upload-icon empty" aria-hidden="true">
+                PDF
+            </div>
+
+            <div class="file-upload-info">
+                <strong>Nenhum currículo publicado</strong>
+                <span>Selecione um arquivo PDF abaixo.</span>
+            </div>
+        }
+    </div>
+
+    <div class="file-upload-controls">
+        <label class="upload-picker">
+            @Label
+            <input
+                type="file"
+                accept="@Accept"
+                @ref="fileInput"
+                @onchange="FileSelected" />
+        </label>
+
+        <span class="upload-filename">
+            @_selectedName ?? "PDF · até 10 MB"
+        </span>
+
+        @if (_selected)
+        {
+            <button
+                type="button"
+                class="upload-submit"
+                disabled="@_busy"
+                @onclick="Upload">
+                @(_busy ? "Enviando…" : "Enviar currículo")
+            </button>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <span class="upload-error" role="alert">
+                @_error
+            </span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Kind { get; set; } = "cv";
+
+    [Parameter]
+    public string Accept { get; set; } = ".pdf";
+
+    [Parameter]
+    public string Label { get; set; } = "Selecionar PDF";
+
+    private ElementReference fileInput;
+    private IJSObjectReference? _module;
+
+    private string? _selectedName;
+    private string? _error;
+
+    private bool _selected;
+    private bool _busy;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./js/admin/adminUpload.js");
+        }
+    }
+
+    private async Task FileSelected(ChangeEventArgs _)
+    {
+        try
+        {
+            var module = _module
+                ?? throw new InvalidOperationException(
+                    "O módulo de upload ainda está carregando.");
+
+            _error = null;
+
+            _selectedName = await module.InvokeAsync<string>(
+                "selectedFileName",
+                fileInput);
+
+            _selected = !string.IsNullOrWhiteSpace(_selectedName);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(
+                ex,
+                "Failed to select file for Admin upload ({FileKind})",
+                Kind);
+
+            _selected = false;
+            _selectedName = null;
+            _error = "Não foi possível selecionar o arquivo.";
+        }
+    }
+
+    private async Task Upload()
+    {
+        _busy = true;
+        _error = null;
+
+        try
+        {
+            var module = _module
+                ?? throw new InvalidOperationException(
+                    "O módulo de upload ainda está carregando.");
+
+            var url = await module.InvokeAsync<string>(
+                "uploadInput",
+                fileInput,
+                Kind);
+
+            await ValueChanged.InvokeAsync(url);
+
+            _selected = false;
+            _selectedName = null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(
+                ex,
+                "Failed to upload Admin file ({FileKind})",
+                Kind);
+
+            _error =
+                "Não foi possível enviar o currículo. " +
+                "Confira se o arquivo é um PDF de até 10 MB.";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    [Inject]
+    private ILogger<AdminFileUpload> Logger { get; set; } = default!;
+}

@@ -148,20 +148,14 @@ app.MapPost("/admin/upload/{kind}", async (
     IStorageService storage) =>
 {
     var form = await request.ReadFormAsync();
+
     var file = form.Files.GetFile("file");
 
     if (file is null)
         return Results.BadRequest("Arquivo ausente.");
 
-    var allowed = new Dictionary<string, string>
-    {
-        [".png"] = "image/png",
-        [".jpg"] = "image/jpeg",
-        [".jpeg"] = "image/jpeg",
-        [".webp"] = "image/webp"
-    };
-
-    var allowedKinds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    var imageKinds = new HashSet<string>(
+        StringComparer.OrdinalIgnoreCase)
     {
         "projects",
         "education",
@@ -169,46 +163,127 @@ app.MapPost("/admin/upload/{kind}", async (
         "technologies"
     };
 
-    if (!allowedKinds.Contains(kind))
-        return Results.BadRequest("Tipo de imagem inválido.");
+    var isCv = string.Equals(
+        kind,
+        "cv",
+        StringComparison.OrdinalIgnoreCase);
 
-    if (file.Length is < 1 or > 5_242_880)
-        return Results.BadRequest("Tipo ou tamanho de imagem inválido (máximo 5 MB).");
+    if (!isCv && !imageKinds.Contains(kind))
+        return Results.BadRequest("Tipo de arquivo inválido.");
 
-    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+    const long maxImageSize = 5_242_880;
+    const long maxCvSize = 10_485_760;
+    
+    var maxSize = isCv
+        ? maxCvSize
+        : maxImageSize;
 
-    if (!allowed.TryGetValue(ext, out var mime) ||
-        !string.Equals(file.ContentType, mime, StringComparison.OrdinalIgnoreCase))
+    
+    if (file.Length < 1 || file.Length > maxSize)
     {
-        return Results.BadRequest("Formato de imagem inválido.");
+        return Results.BadRequest(
+            isCv
+                ? "O currículo deve ser um PDF de até 10 MB."
+                : "A imagem deve ter no máximo 5 MB.");
     }
+
+    var extension = Path
+        .GetExtension(file.FileName)
+        .ToLowerInvariant();
 
     await using var input = file.OpenReadStream();
 
     using var memory = new MemoryStream();
+
     await input.CopyToAsync(memory);
 
     var bytes = memory.ToArray();
 
-    var valid = ext == ".png"
-        ? bytes.Length >= 8 &&
-          bytes.AsSpan().StartsWith(
-              new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })
-        : ext == ".webp"
-            ? bytes.Length >= 12 &&
-              System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&
-              System.Text.Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP"
-            : bytes.Length >= 4 &&
-              bytes[0] == 255 &&
-              bytes[1] == 216 &&
-              bytes[^2] == 255 &&
-              bytes[^1] == 217;
+    string mime;
 
-    if (!valid)
-        return Results.BadRequest(
-            "O conteúdo não corresponde a uma imagem válida.");
+    if (isCv)
+    {
+        if (extension != ".pdf" ||
+            !string.Equals(
+                file.ContentType,
+                "application/pdf",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.BadRequest(
+                "O currículo deve estar no formato PDF.");
+        }
 
-    await using var uploadStream = new MemoryStream(bytes);
+        var validPdf =
+            bytes.Length >= 4 &&
+            bytes[0] == 0x25 &&
+            bytes[1] == 0x50 &&
+            bytes[2] == 0x44 &&
+            bytes[3] == 0x46;
+
+        if (!validPdf)
+        {
+            return Results.BadRequest(
+                "O conteúdo do arquivo não corresponde a um PDF válido.");
+        }
+
+        mime = "application/pdf";
+    }
+    else
+    {
+        var allowed = new Dictionary<string, string>(
+            StringComparer.OrdinalIgnoreCase)
+        {
+            [".png"] = "image/png",
+            [".jpg"] = "image/jpeg",
+            [".jpeg"] = "image/jpeg",
+            [".webp"] = "image/webp"
+        };
+
+        if (!allowed.TryGetValue(extension, out mime!) ||
+            !string.Equals(
+                file.ContentType,
+                mime,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.BadRequest(
+                "Formato de imagem inválido.");
+        }
+
+        var valid = extension == ".png"
+            ? bytes.Length >= 8 &&
+              bytes.AsSpan().StartsWith(
+                  new byte[]
+                  {
+                      137, 80, 78, 71,
+                      13, 10, 26, 10
+                  })
+
+            : extension == ".webp"
+                ? bytes.Length >= 12 &&
+                  System.Text.Encoding.ASCII.GetString(
+                      bytes,
+                      0,
+                      4) == "RIFF" &&
+                  System.Text.Encoding.ASCII.GetString(
+                      bytes,
+                      8,
+                      4) == "WEBP"
+
+                : bytes.Length >= 4 &&
+                  bytes[0] == 255 &&
+                  bytes[1] == 216 &&
+                  bytes[^2] == 255 &&
+                  bytes[^1] == 217;
+
+        if (!valid)
+        {
+            return Results.BadRequest(
+                "O conteúdo não corresponde a uma imagem válida.");
+        }
+    }
+
+    await using var uploadStream =
+        new MemoryStream(bytes);
 
     var url = await storage.UploadAsync(
         uploadStream,
