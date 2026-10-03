@@ -297,7 +297,12 @@ app.MapPost("/admin/upload/{kind}", async (
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 using (var scope = app.Services.CreateScope())
 {
-    await scope.ServiceProvider.GetRequiredService<PortfolioDbContext>().Database.MigrateAsync();
+    var factory = scope.ServiceProvider
+        .GetRequiredService<IDbContextFactory<PortfolioDbContext>>();
+
+    await using var db = await factory.CreateDbContextAsync();
+
+    await db.Database.MigrateAsync();
 }
 
 app.MapStaticAssets();
